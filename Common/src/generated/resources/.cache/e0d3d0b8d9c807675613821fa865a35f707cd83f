@@ -1,0 +1,4 @@
+// 1.21.11	2025-12-31T14:36:12.123689	Data Maps
+9db1d8d0deb48474bb257980555a3c44e67a1f32 data/beaconupgrade/data_maps/block/beacon_base_blocks.json
+6735ffbc358a187505dd136938fb0875ddbf1674 data/beaconupgrade/data_maps/item/beacon_payment_items.json
+b0209df2726c3b51d6e0e2d0934478af05cc6d72 data/beaconupgrade/data_maps/mob_effect/beacon_level_effects.json

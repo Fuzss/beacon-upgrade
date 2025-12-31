@@ -1,0 +1,76 @@
+{
+  "values": {
+    "beaconupgrade:long_reach": {
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "min_level": 1
+    },
+    "beaconupgrade:nutrition": {
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "min_level": 3
+    },
+    "minecraft:fire_resistance": {
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "min_level": 3
+    },
+    "minecraft:haste": {
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "min_level": 1
+    },
+    "minecraft:jump_boost": {
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "min_level": 2
+    },
+    "minecraft:regeneration": {
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "min_level": 2
+    },
+    "minecraft:resistance": {
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "min_level": 2
+    },
+    "minecraft:speed": {
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "min_level": 1
+    },
+    "minecraft:strength": {
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "min_level": 3
+    }
+  }
+}

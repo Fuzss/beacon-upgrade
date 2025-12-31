@@ -4,4 +4,11 @@ plugins {
 
 dependencies {
     modCompileOnlyApi(libs.puzzleslib.common)
+    modCompileOnlyApi(libs.neoforgedatapackextensions.common)
+}
+
+multiloader {
+    mixins {
+        mixin("FoodDataMixin", "PlayerMixin")
+    }
 }
