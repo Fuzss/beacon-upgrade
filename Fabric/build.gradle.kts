@@ -8,3 +8,9 @@ dependencies {
     modApi(libs.neoforgedatapackextensions.fabric)
     include(libs.neoforgedatapackextensions.fabric)
 }
+
+multiloader {
+    mixins {
+        mixin("PhantomSpawnerFabricMixin")
+    }
+}

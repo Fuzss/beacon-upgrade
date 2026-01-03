@@ -17,8 +17,8 @@ public record ClampedLevelBasedValue(LevelBasedValue value,
     }).validate((ClampedLevelBasedValue value) -> {
         float max = value.max.calculate(1);
         float min = value.min.calculate(1);
-        return max <= min ? DataResult.error(() -> {
-            return "Max must be larger than min, min: " + min + ", max: " + max;
+        return max < min ? DataResult.error(() -> {
+            return "Max must be larger than or equal to min, min: " + min + ", max: " + max;
         }) : DataResult.success(value);
     });
 

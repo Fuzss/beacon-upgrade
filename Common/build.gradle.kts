@@ -9,6 +9,6 @@ dependencies {
 
 multiloader {
     mixins {
-        mixin("FoodDataMixin", "PlayerMixin")
+        mixin("FoodDataMixin", "PatrolSpawnerMixin", "PlayerMixin", "WanderingTraderSpawnerMixin")
     }
 }

@@ -1,5 +1,8 @@
 accessWidener   v2  named
+accessible  field   net/minecraft/world/level/block/entity/BeaconBlockEntity    levels  I
 accessible  field   net/minecraft/world/level/block/entity/BeaconBlockEntity    lockKey Lnet/minecraft/world/LockCode;
 accessible  field   net/minecraft/world/level/block/entity/BeaconBlockEntity    dataAccess  Lnet/minecraft/world/inventory/ContainerData;
 accessible  field   net/minecraft/world/inventory/BeaconMenu    beacon  Lnet/minecraft/world/Container;
 accessible  field   net/minecraft/world/inventory/BeaconMenu    access  Lnet/minecraft/world/inventory/ContainerLevelAccess;
+transitive-accessible   method  net/minecraft/world/effect/MobEffect    <init>  (Lnet/minecraft/world/effect/MobEffectCategory;I)V
+transitive-accessible   method  net/minecraft/world/effect/MobEffect    <init>  (Lnet/minecraft/world/effect/MobEffectCategory;ILnet/minecraft/core/particles/ParticleOptions;)V

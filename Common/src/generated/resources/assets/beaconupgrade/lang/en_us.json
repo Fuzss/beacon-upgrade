@@ -1,4 +1,8 @@
 {
-  "effect.beaconupgrade.long_reach": "Long Reach",
-  "effect.beaconupgrade.nutrition": "Nutrition"
+  "effect.beaconupgrade.bane_of_phantoms": "Bane of Phantoms",
+  "effect.beaconupgrade.bane_of_raiders": "Bane of Raiders",
+  "effect.beaconupgrade.bane_of_traders": "Bane of Traders",
+  "effect.beaconupgrade.flight": "Flight",
+  "effect.beaconupgrade.nutrition": "Nutrition",
+  "effect.beaconupgrade.reach": "Reach"
 }

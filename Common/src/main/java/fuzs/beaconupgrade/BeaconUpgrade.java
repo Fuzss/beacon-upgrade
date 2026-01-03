@@ -2,13 +2,17 @@ package fuzs.beaconupgrade;
 
 import fuzs.beaconupgrade.config.ServerConfig;
 import fuzs.beaconupgrade.handler.BlockConversionHandler;
+import fuzs.beaconupgrade.handler.FlightEffectHandler;
 import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.beaconupgrade.world.level.block.UpgradedBeaconBlock;
 import fuzs.puzzleslib.api.config.v3.ConfigHolder;
 import fuzs.puzzleslib.api.core.v1.ModConstructor;
+import fuzs.puzzleslib.api.core.v1.ModLoaderEnvironment;
 import fuzs.puzzleslib.api.event.v1.AddBlockEntityTypeBlocksCallback;
 import fuzs.puzzleslib.api.event.v1.RegistryEntryAddedCallback;
 import fuzs.puzzleslib.api.event.v1.core.EventPhase;
+import fuzs.puzzleslib.api.event.v1.entity.living.LivingFallCallback;
+import fuzs.puzzleslib.api.event.v1.entity.living.MobEffectEvents;
 import fuzs.puzzleslib.api.event.v1.entity.player.PlayerInteractEvents;
 import fuzs.puzzleslib.api.event.v1.server.TagsUpdatedCallback;
 import net.minecraft.core.registries.Registries;
@@ -35,28 +39,26 @@ public class BeaconUpgrade implements ModConstructor {
     @Override
     public void onConstructMod() {
         ModRegistry.bootstrap();
-        registerLoadingHandlers();
+        registerEventHandlers();
     }
 
-    private static void registerLoadingHandlers() {
+    private static void registerEventHandlers() {
         RegistryEntryAddedCallback.registryEntryAdded(Registries.BLOCK)
                 .register(BlockConversionHandler.onRegistryEntryAdded(BLOCK_PREDICATE,
                         UpgradedBeaconBlock::new,
                         MOD_ID));
         AddBlockEntityTypeBlocksCallback.EVENT.register(BlockConversionHandler.onAddBlockEntityTypeBlocks(ModRegistry.BEACON_BLOCK_ENTITY_TYPE));
-    }
-
-    @Override
-    public void onCommonSetup() {
-        registerEventHandlers();
-    }
-
-    private static void registerEventHandlers() {
         PlayerInteractEvents.USE_BLOCK.register(BlockConversionHandler.onUseBlock(ModRegistry.UNALTERED_BEACONS_BLOCK_TAG,
                 SoundEvents.BEACON_ACTIVATE,
                 () -> CONFIG.get(ServerConfig.class).convertVanillaBeaconWhenInteracting));
         TagsUpdatedCallback.EVENT.register(EventPhase.FIRST,
                 BlockConversionHandler.onTagsUpdated(ModRegistry.UNALTERED_BEACONS_BLOCK_TAG, BLOCK_PREDICATE));
+        LivingFallCallback.EVENT.register(FlightEffectHandler::onLivingFall);
+        MobEffectEvents.EXPIRE.register(EventPhase.BEFORE, FlightEffectHandler::onMobEffectExpire);
+        if (ModLoaderEnvironment.INSTANCE.getModLoader().isFabricLike()) {
+            MobEffectEvents.REMOVE.register(FlightEffectHandler::onMobEffectRemove);
+            MobEffectEvents.EXPIRE.register(FlightEffectHandler::onMobEffectRemove);
+        }
     }
 
     public static Identifier id(String path) {

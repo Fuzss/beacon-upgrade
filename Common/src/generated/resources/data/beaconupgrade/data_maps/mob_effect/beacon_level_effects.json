@@ -1,74 +1,138 @@
 {
   "values": {
-    "beaconupgrade:long_reach": {
-      "max_amplifier": {
+    "beaconupgrade:bane_of_phantoms": {
+      "amplifier": {
+        "type": "beaconupgrade:clamped",
+        "max": 0.0,
+        "min": 0.0,
+        "value": {
+          "type": "minecraft:linear",
+          "base": 0.0,
+          "per_level_above_first": 1.0
+        }
+      },
+      "min_level": 4
+    },
+    "beaconupgrade:bane_of_raiders": {
+      "amplifier": {
+        "type": "beaconupgrade:clamped",
+        "max": 0.0,
+        "min": 0.0,
+        "value": {
+          "type": "minecraft:linear",
+          "base": 0.0,
+          "per_level_above_first": 1.0
+        }
+      },
+      "min_level": 4
+    },
+    "beaconupgrade:flight": {
+      "amplifier": {
+        "type": "beaconupgrade:clamped",
+        "max": 0.0,
+        "min": 0.0,
+        "value": {
+          "type": "minecraft:linear",
+          "base": 0.0,
+          "per_level_above_first": 1.0
+        }
+      },
+      "min_level": 5
+    },
+    "beaconupgrade:nutrition": {
+      "amplifier": {
+        "type": "beaconupgrade:clamped",
+        "max": 4.0,
+        "min": 0.0,
+        "value": {
+          "type": "minecraft:linear",
+          "base": 0.0,
+          "per_level_above_first": 1.0
+        }
+      },
+      "min_level": 3
+    },
+    "beaconupgrade:reach": {
+      "amplifier": {
         "type": "minecraft:linear",
-        "base": 1.0,
+        "base": 0.0,
         "per_level_above_first": 1.0
       },
       "min_level": 1
     },
-    "beaconupgrade:nutrition": {
-      "max_amplifier": {
-        "type": "minecraft:linear",
-        "base": 1.0,
-        "per_level_above_first": 1.0
-      },
-      "min_level": 3
-    },
     "minecraft:fire_resistance": {
-      "max_amplifier": {
+      "amplifier": {
         "type": "minecraft:linear",
-        "base": 1.0,
+        "base": 0.0,
         "per_level_above_first": 1.0
       },
       "min_level": 3
     },
     "minecraft:haste": {
-      "max_amplifier": {
-        "type": "minecraft:linear",
-        "base": 1.0,
-        "per_level_above_first": 1.0
+      "amplifier": {
+        "type": "beaconupgrade:clamped",
+        "max": 4.0,
+        "min": 0.0,
+        "value": {
+          "type": "minecraft:linear",
+          "base": 0.0,
+          "per_level_above_first": 1.0
+        }
       },
       "min_level": 1
     },
     "minecraft:jump_boost": {
-      "max_amplifier": {
+      "amplifier": {
         "type": "minecraft:linear",
-        "base": 1.0,
+        "base": 0.0,
         "per_level_above_first": 1.0
       },
       "min_level": 2
     },
     "minecraft:regeneration": {
-      "max_amplifier": {
-        "type": "minecraft:linear",
-        "base": 1.0,
-        "per_level_above_first": 1.0
+      "amplifier": {
+        "type": "beaconupgrade:clamped",
+        "max": 2.0,
+        "min": 0.0,
+        "value": {
+          "type": "minecraft:linear",
+          "base": 0.0,
+          "per_level_above_first": 1.0
+        }
       },
       "min_level": 2
     },
     "minecraft:resistance": {
-      "max_amplifier": {
-        "type": "minecraft:linear",
-        "base": 1.0,
-        "per_level_above_first": 1.0
+      "amplifier": {
+        "type": "beaconupgrade:clamped",
+        "max": 4.0,
+        "min": 0.0,
+        "value": {
+          "type": "minecraft:linear",
+          "base": 0.0,
+          "per_level_above_first": 1.0
+        }
       },
       "min_level": 2
     },
     "minecraft:speed": {
-      "max_amplifier": {
+      "amplifier": {
         "type": "minecraft:linear",
-        "base": 1.0,
+        "base": 0.0,
         "per_level_above_first": 1.0
       },
       "min_level": 1
     },
     "minecraft:strength": {
-      "max_amplifier": {
-        "type": "minecraft:linear",
-        "base": 1.0,
-        "per_level_above_first": 1.0
+      "amplifier": {
+        "type": "beaconupgrade:clamped",
+        "max": 4.0,
+        "min": 0.0,
+        "value": {
+          "type": "minecraft:linear",
+          "base": 0.0,
+          "per_level_above_first": 1.0
+        }
       },
       "min_level": 3
     }

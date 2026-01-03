@@ -14,8 +14,12 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
 
     @Override
     public void addTranslations(TranslationBuilder translationBuilder) {
-        translationBuilder.addMobEffect(ModRegistry.LONG_REACH_MOB_EFFECT, "Long Reach");
+        translationBuilder.addMobEffect(ModRegistry.REACH_MOB_EFFECT, "Reach");
         translationBuilder.addMobEffect(ModRegistry.NUTRITION_MOB_EFFECT, "Nutrition");
+        translationBuilder.addMobEffect(ModRegistry.BANE_OF_PHANTOMS_MOB_EFFECT, "Bane of Phantoms");
+        translationBuilder.addMobEffect(ModRegistry.BANE_OF_RAIDERS_MOB_EFFECT, "Bane of Raiders");
+        translationBuilder.addMobEffect(ModRegistry.BANE_OF_TRADERS_MOB_EFFECT, "Bane of Traders");
+        translationBuilder.addMobEffect(ModRegistry.FLIGHT_MOB_EFFECT, "Flight");
     }
 
     @Override
