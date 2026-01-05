@@ -1,140 +1,188 @@
 {
   "values": {
     "beaconupgrade:bane_of_phantoms": {
-      "amplifier": {
+      "cost_per_amplifier": {
+        "type": "minecraft:linear",
+        "base": 4.0,
+        "per_level_above_first": 4.0
+      },
+      "max_amplifier": {
         "type": "beaconupgrade:clamped",
         "max": 0.0,
-        "min": 0.0,
+        "min": -1.0,
         "value": {
           "type": "minecraft:linear",
-          "base": 0.0,
+          "base": -3.0,
           "per_level_above_first": 1.0
         }
-      },
-      "min_level": 4
+      }
     },
     "beaconupgrade:bane_of_raiders": {
-      "amplifier": {
+      "cost_per_amplifier": {
+        "type": "minecraft:linear",
+        "base": 4.0,
+        "per_level_above_first": 4.0
+      },
+      "max_amplifier": {
         "type": "beaconupgrade:clamped",
         "max": 0.0,
-        "min": 0.0,
+        "min": -1.0,
         "value": {
           "type": "minecraft:linear",
-          "base": 0.0,
+          "base": -3.0,
           "per_level_above_first": 1.0
         }
-      },
-      "min_level": 4
+      }
     },
     "beaconupgrade:flight": {
-      "amplifier": {
+      "cost_per_amplifier": {
+        "type": "minecraft:linear",
+        "base": 5.0,
+        "per_level_above_first": 5.0
+      },
+      "max_amplifier": {
         "type": "beaconupgrade:clamped",
         "max": 0.0,
-        "min": 0.0,
+        "min": -1.0,
         "value": {
           "type": "minecraft:linear",
-          "base": 0.0,
+          "base": -4.0,
           "per_level_above_first": 1.0
         }
-      },
-      "min_level": 5
+      }
     },
     "beaconupgrade:nutrition": {
-      "amplifier": {
+      "cost_per_amplifier": {
+        "type": "minecraft:linear",
+        "base": 3.0,
+        "per_level_above_first": 3.0
+      },
+      "max_amplifier": {
         "type": "beaconupgrade:clamped",
         "max": 4.0,
-        "min": 0.0,
+        "min": -1.0,
         "value": {
           "type": "minecraft:linear",
-          "base": 0.0,
+          "base": -2.0,
           "per_level_above_first": 1.0
         }
-      },
-      "min_level": 3
+      }
     },
     "beaconupgrade:reach": {
-      "amplifier": {
+      "cost_per_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "max_amplifier": {
         "type": "minecraft:linear",
         "base": 0.0,
         "per_level_above_first": 1.0
-      },
-      "min_level": 1
+      }
     },
     "minecraft:fire_resistance": {
-      "amplifier": {
+      "cost_per_amplifier": {
         "type": "minecraft:linear",
-        "base": 0.0,
-        "per_level_above_first": 1.0
+        "base": 3.0,
+        "per_level_above_first": 3.0
       },
-      "min_level": 3
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": -2.0,
+        "per_level_above_first": 1.0
+      }
     },
     "minecraft:haste": {
-      "amplifier": {
+      "cost_per_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "max_amplifier": {
         "type": "beaconupgrade:clamped",
         "max": 4.0,
-        "min": 0.0,
+        "min": -1.0,
         "value": {
           "type": "minecraft:linear",
           "base": 0.0,
           "per_level_above_first": 1.0
         }
-      },
-      "min_level": 1
+      }
     },
     "minecraft:jump_boost": {
-      "amplifier": {
+      "cost_per_amplifier": {
         "type": "minecraft:linear",
-        "base": 0.0,
-        "per_level_above_first": 1.0
+        "base": 2.0,
+        "per_level_above_first": 2.0
       },
-      "min_level": 2
+      "max_amplifier": {
+        "type": "minecraft:linear",
+        "base": -1.0,
+        "per_level_above_first": 1.0
+      }
     },
     "minecraft:regeneration": {
-      "amplifier": {
+      "cost_per_amplifier": {
+        "type": "minecraft:linear",
+        "base": 2.0,
+        "per_level_above_first": 2.0
+      },
+      "max_amplifier": {
         "type": "beaconupgrade:clamped",
         "max": 2.0,
-        "min": 0.0,
+        "min": -1.0,
         "value": {
           "type": "minecraft:linear",
-          "base": 0.0,
+          "base": -1.0,
           "per_level_above_first": 1.0
         }
-      },
-      "min_level": 2
+      }
     },
     "minecraft:resistance": {
-      "amplifier": {
+      "cost_per_amplifier": {
+        "type": "minecraft:linear",
+        "base": 2.0,
+        "per_level_above_first": 2.0
+      },
+      "max_amplifier": {
         "type": "beaconupgrade:clamped",
         "max": 4.0,
-        "min": 0.0,
+        "min": -1.0,
         "value": {
           "type": "minecraft:linear",
-          "base": 0.0,
+          "base": -1.0,
           "per_level_above_first": 1.0
         }
-      },
-      "min_level": 2
+      }
     },
     "minecraft:speed": {
-      "amplifier": {
+      "cost_per_amplifier": {
+        "type": "minecraft:linear",
+        "base": 1.0,
+        "per_level_above_first": 1.0
+      },
+      "max_amplifier": {
         "type": "minecraft:linear",
         "base": 0.0,
         "per_level_above_first": 1.0
-      },
-      "min_level": 1
+      }
     },
     "minecraft:strength": {
-      "amplifier": {
+      "cost_per_amplifier": {
+        "type": "minecraft:linear",
+        "base": 3.0,
+        "per_level_above_first": 3.0
+      },
+      "max_amplifier": {
         "type": "beaconupgrade:clamped",
         "max": 4.0,
-        "min": 0.0,
+        "min": -1.0,
         "value": {
           "type": "minecraft:linear",
-          "base": 0.0,
+          "base": -2.0,
           "per_level_above_first": 1.0
         }
-      },
-      "min_level": 3
+      }
     }
   }
 }

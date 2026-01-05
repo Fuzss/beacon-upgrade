@@ -13,7 +13,7 @@ public interface LevelBasedEntry<T> {
     int availableLevel();
 
     default boolean isPresent() {
-        return this.level() > 0;
+        return this.level() > this.getZeroIndex();
     }
 
     default boolean isIncompatible() {
@@ -25,8 +25,10 @@ public interface LevelBasedEntry<T> {
     }
 
     default boolean isNotAvailable() {
-        return this.availableLevel() == 0;
+        return this.availableLevel() <= this.getZeroIndex();
     }
+
+    int getZeroIndex();
 
     Component getDisplayName(Holder<T> holder, int maxWidth, int seed);
 

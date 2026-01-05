@@ -5,7 +5,6 @@ import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.beaconupgrade.world.inventory.UpgradedBeaconMenu;
 import fuzs.beaconupgrade.world.level.block.BeaconBaseBlock;
 import fuzs.beaconupgrade.world.level.block.BeaconLevelEffect;
-import fuzs.neoforgedatapackextensions.api.v2.DataMapLookup;
 import fuzs.puzzleslib.api.block.v1.entity.TickingBlockEntity;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -26,6 +25,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,13 +39,16 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
     /**
      * Always require a level of at least one, as the beacon structure itself will not activate with less.
      */
-    public static final int MIN_BEACON_LEVELS = 1;
+    public static final int MIN_PYRAMID_LEVELS = 1;
     /**
      * Pick some reasonable value, as the number of blocks required for checking on the pyramid gets out of hand quickly
      * otherwise.
      */
-    public static final int MAX_BEACON_LEVELS = 5;
-    public static final int POWER_LEVELS_DATA_SLOTS = MAX_BEACON_LEVELS + 1;
+    public static final int MAX_PYRAMID_LEVELS = 5;
+    public static final int PYRAMID_LEVELS_DATA_SLOT = DATA_LEVELS;
+    public static final int ALL_POWER_LEVELS_DATA_SLOT = 1;
+    public static final int EXTRA_LEVELS_DATA_SLOTS = 2;
+    public static final int LEVELS_DATA_SLOTS = MAX_PYRAMID_LEVELS + EXTRA_LEVELS_DATA_SLOTS;
     public static final Codec<Object2IntMap<Holder<MobEffect>>> MOB_EFFECTS_CODEC = Codec.unboundedMap(MobEffect.CODEC,
                     Codec.intRange(MobEffectInstance.MIN_AMPLIFIER, MobEffectInstance.MAX_AMPLIFIER))
             .xmap(Object2IntOpenHashMap::new, Function.identity());
@@ -62,8 +65,8 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
         public int get(int index) {
             MobEffect mobEffect = BuiltInRegistries.MOB_EFFECT.byId(index);
             if (mobEffect != null) {
-                return UpgradedBeaconBlockEntity.this.mobEffects.getInt(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(
-                        mobEffect));
+                return UpgradedBeaconBlockEntity.this.mobEffects.getOrDefault(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(
+                        mobEffect), -1);
             } else {
                 return -1;
             }
@@ -90,13 +93,16 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
             return BuiltInRegistries.MOB_EFFECT.size();
         }
     };
-    private final ContainerData powerLevelsData = new ContainerData() {
+    private final ContainerData pyramidLevelsData = new ContainerData() {
         @Override
         public int get(int index) {
-            if (index == DATA_LEVELS) {
+            if (index == PYRAMID_LEVELS_DATA_SLOT) {
                 return UpgradedBeaconBlockEntity.this.powerLevels.length;
-            } else if (index > DATA_LEVELS && index - 1 < UpgradedBeaconBlockEntity.this.powerLevels.length) {
-                return UpgradedBeaconBlockEntity.this.powerLevels[index - 1];
+            } else if (index == ALL_POWER_LEVELS_DATA_SLOT) {
+                return UpgradedBeaconBlockEntity.this.getAllPowerLevels();
+            } else if (index - EXTRA_LEVELS_DATA_SLOTS >= 0
+                    && index - EXTRA_LEVELS_DATA_SLOTS < UpgradedBeaconBlockEntity.this.powerLevels.length) {
+                return UpgradedBeaconBlockEntity.this.powerLevels[index - EXTRA_LEVELS_DATA_SLOTS];
             } else {
                 return -1;
             }
@@ -104,14 +110,15 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
 
         @Override
         public void set(int index, int value) {
-            if (index > DATA_LEVELS && index - 1 < UpgradedBeaconBlockEntity.this.powerLevels.length) {
-                UpgradedBeaconBlockEntity.this.powerLevels[index - 1] = value;
+            if (index - EXTRA_LEVELS_DATA_SLOTS >= 0
+                    && index - EXTRA_LEVELS_DATA_SLOTS < UpgradedBeaconBlockEntity.this.powerLevels.length) {
+                UpgradedBeaconBlockEntity.this.powerLevels[index - EXTRA_LEVELS_DATA_SLOTS] = value;
             }
         }
 
         @Override
         public int getCount() {
-            return POWER_LEVELS_DATA_SLOTS;
+            return LEVELS_DATA_SLOTS;
         }
     };
     private int[] powerLevels = new int[0];
@@ -126,6 +133,15 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
         return ModRegistry.BEACON_BLOCK_ENTITY_TYPE.value();
     }
 
+    public int getAllPowerLevels() {
+        int allPowerLevel = 0;
+        for (int powerLevel : this.powerLevels) {
+            allPowerLevel += powerLevel;
+        }
+
+        return allPowerLevel;
+    }
+
     @Override
     public void clientTick(Level level, BlockPos blockPos, BlockState blockState) {
         tick(level, blockPos, blockState, this);
@@ -137,50 +153,49 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
     }
 
     public int[] updatePowerLevels(Level level, BlockPos blockPos) {
-        return this.powerLevels = this.getPowerLevels(level, blockPos);
+        return this.powerLevels = this.getPyramidLevelPowerBlocks(level, blockPos);
     }
 
     /**
      * @see BeaconBlockEntity#updateBase(Level, int, int, int)
      */
-    private int[] getPowerLevels(Level level, BlockPos blockPos) {
-        int maxLevel = this.getMaxLevel();
+    private int[] getPyramidLevelPowerBlocks(Level level, BlockPos blockPos) {
         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
-        IntList powerLevels = new IntArrayList();
-        for (int levels = MIN_BEACON_LEVELS; levels <= maxLevel; levels++) {
-            int posY = blockPos.getY() - levels;
+        IntList powerBlocks = new IntArrayList();
+        for (int pyramidLevel = MIN_PYRAMID_LEVELS; pyramidLevel <= MAX_PYRAMID_LEVELS; pyramidLevel++) {
+            int posY = blockPos.getY() - pyramidLevel;
             if (posY < level.getMinY()) {
                 break;
             }
 
-            powerLevels.add(MAX_BEACON_LEVELS);
-            for (int posX = blockPos.getX() - levels; posX <= blockPos.getX() + levels; ++posX) {
-                for (int posZ = blockPos.getZ() - levels; posZ <= blockPos.getZ() + levels; ++posZ) {
+            int minPowerLevel = Integer.MAX_VALUE;
+            Block minPowerBlock = null;
+            for (int posX = blockPos.getX() - pyramidLevel; posX <= blockPos.getX() + pyramidLevel; ++posX) {
+                for (int posZ = blockPos.getZ() - pyramidLevel; posZ <= blockPos.getZ() + pyramidLevel; ++posZ) {
                     BlockState blockState = level.getBlockState(mutableBlockPos.set(posX, posY, posZ));
-                    BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(blockState);
-                    if (beaconBaseBlock != null) {
-                        int powerLevel = Math.round(beaconBaseBlock.power().calculate(levels));
-                        if (powerLevel < powerLevels.getInt(levels - 1)) {
-                            powerLevels.set(levels - 1, powerLevel);
+                    if (minPowerBlock == null || !blockState.is(minPowerBlock)) {
+                        BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(blockState);
+                        if (beaconBaseBlock != null) {
+                            int powerLevel = beaconBaseBlock.getMaxPowerLevel();
+                            if (powerLevel < minPowerLevel) {
+                                minPowerLevel = powerLevel;
+                                minPowerBlock = blockState.getBlock();
+                            }
+                        } else {
+                            return powerBlocks.toIntArray();
                         }
-                    } else {
-                        powerLevels.removeInt(levels - 1);
-                        return powerLevels.toIntArray();
                     }
                 }
             }
+
+            if (minPowerBlock != null) {
+                powerBlocks.add(BuiltInRegistries.BLOCK.getIdOrThrow(minPowerBlock));
+            } else {
+                return powerBlocks.toIntArray();
+            }
         }
 
-        return powerLevels.toIntArray();
-    }
-
-    private int getMaxLevel() {
-        return DataMapLookup.getDataMap(BuiltInRegistries.MOB_EFFECT, ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE)
-                .values()
-                .stream()
-                .mapToInt(BeaconLevelEffect::getMinLevels)
-                .max()
-                .orElse(MIN_BEACON_LEVELS);
+        return powerBlocks.toIntArray();
     }
 
     @Override
@@ -217,7 +232,7 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
         if (this.lockKey.canUnlock(player)) {
             return new UpgradedBeaconMenu(containerId,
                     inventory,
-                    this.powerLevelsData,
+                    this.pyramidLevelsData,
                     this.mobEffectsData,
                     ContainerLevelAccess.create(this.getLevel(), this.getBlockPos()));
         } else {

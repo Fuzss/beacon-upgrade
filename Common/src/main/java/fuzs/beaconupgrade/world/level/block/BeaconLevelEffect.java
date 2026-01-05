@@ -13,33 +13,35 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-public record BeaconLevelEffect(LevelBasedValue maxAmplifier) {
+public record BeaconLevelEffect(LevelBasedValue maxAmplifier, LevelBasedValue costPerAmplifier) {
     public static final Codec<BeaconLevelEffect> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    LevelBasedValue.CODEC.fieldOf("max_amplifier").forGetter(BeaconLevelEffect::maxAmplifier))
+                    LevelBasedValue.CODEC.fieldOf("max_amplifier").forGetter(BeaconLevelEffect::maxAmplifier),
+                    LevelBasedValue.CODEC.fieldOf("cost_per_amplifier").forGetter(BeaconLevelEffect::costPerAmplifier))
             .apply(instance, BeaconLevelEffect::new));
-    public static final BeaconLevelEffect DEFAULT = new BeaconLevelEffect(LevelBasedValue.constant(-1.0F));
+    public static final BeaconLevelEffect DEFAULT = new BeaconLevelEffect(LevelBasedValue.constant(-1.0F),
+            LevelBasedValue.perLevel(0.0F));
 
     public BeaconLevelEffect(int minLevels) {
-        this(LevelBasedValue.perLevel(1.0F - minLevels, 1.0F));
+        this(LevelBasedValue.perLevel(1.0F - minLevels, 1.0F), LevelBasedValue.perLevel(minLevels));
     }
 
     public BeaconLevelEffect(int minLevels, int maxAmplifier) {
         this(new ClampedLevelBasedValue(LevelBasedValue.perLevel(1.0F - minLevels, 1.0F),
                 LevelBasedValue.constant(-1.0F),
-                LevelBasedValue.constant(maxAmplifier)));
+                LevelBasedValue.constant(maxAmplifier)), LevelBasedValue.perLevel(minLevels));
     }
 
-    public int getMaxAmplifier(int levels) {
-        return Math.clamp(Math.round(this.maxAmplifier.calculate(levels)), -1, MobEffectInstance.MAX_AMPLIFIER);
+    public int getMaxAmplifier(int pyramidLevels) {
+        return Math.clamp(Math.round(this.maxAmplifier.calculate(pyramidLevels)), -1, MobEffectInstance.MAX_AMPLIFIER);
     }
 
-    public int getMinLevels() {
-        for (int levels = UpgradedBeaconBlockEntity.MIN_BEACON_LEVELS;
-             levels <= UpgradedBeaconBlockEntity.MAX_BEACON_LEVELS; levels++) {
+    public int getMinPyramidLevels() {
+        for (int levels = UpgradedBeaconBlockEntity.MIN_PYRAMID_LEVELS;
+             levels <= UpgradedBeaconBlockEntity.MAX_PYRAMID_LEVELS; levels++) {
             if (this.getMaxAmplifier(levels) >= 0) {
                 return levels;
             }
@@ -53,19 +55,28 @@ public record BeaconLevelEffect(LevelBasedValue maxAmplifier) {
                 .getOrDefault(mobEffect.unwrapKey().orElseThrow(), DEFAULT);
     }
 
-    public static int getMaxAmplifier(Holder<MobEffect> mobEffect, int levels) {
-        return get(mobEffect).getMaxAmplifier(levels);
+    public static int getMaxAmplifier(Holder<MobEffect> mobEffect) {
+        return getMaxAmplifier(mobEffect, UpgradedBeaconBlockEntity.MAX_PYRAMID_LEVELS);
     }
 
-    public static Set<? extends Holder<MobEffect>> getValidMobEffects() {
+    public static int getMaxAmplifier(Holder<MobEffect> mobEffect, int pyramidLevels) {
+        return get(mobEffect).getMaxAmplifier(pyramidLevels);
+    }
+
+    public static Collection<? extends Holder<MobEffect>> getValidMobEffects() {
         return DataMapLookup.getDataMap(BuiltInRegistries.MOB_EFFECT, ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE)
                 .entrySet()
                 .stream()
                 .filter((Map.Entry<ResourceKey<MobEffect>, BeaconLevelEffect> entry) -> {
-                    return entry.getValue().getMinLevels() >= UpgradedBeaconBlockEntity.MIN_BEACON_LEVELS;
+                    return entry.getValue().getMinPyramidLevels() >= UpgradedBeaconBlockEntity.MIN_PYRAMID_LEVELS;
                 })
+                .sorted(Comparator.<Map.Entry<ResourceKey<MobEffect>, BeaconLevelEffect>>comparingInt((Map.Entry<ResourceKey<MobEffect>, BeaconLevelEffect> entry) -> {
+                    return entry.getValue().getMinPyramidLevels();
+                }).thenComparing((Map.Entry<ResourceKey<MobEffect>, BeaconLevelEffect> entry) -> {
+                    return entry.getKey().identifier();
+                }))
                 .map(Map.Entry::getKey)
                 .map(BuiltInRegistries.MOB_EFFECT::getOrThrow)
-                .collect(Collectors.toSet());
+                .toList();
     }
 }
