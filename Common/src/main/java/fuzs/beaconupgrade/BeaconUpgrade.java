@@ -4,10 +4,12 @@ import fuzs.beaconupgrade.config.ServerConfig;
 import fuzs.beaconupgrade.handler.BlockConversionHandler;
 import fuzs.beaconupgrade.handler.FlightEffectHandler;
 import fuzs.beaconupgrade.init.ModRegistry;
+import fuzs.beaconupgrade.network.client.ServerboundBeaconEffectsMessage;
 import fuzs.beaconupgrade.world.level.block.UpgradedBeaconBlock;
 import fuzs.puzzleslib.api.config.v3.ConfigHolder;
 import fuzs.puzzleslib.api.core.v1.ModConstructor;
 import fuzs.puzzleslib.api.core.v1.ModLoaderEnvironment;
+import fuzs.puzzleslib.api.core.v1.context.PayloadTypesContext;
 import fuzs.puzzleslib.api.event.v1.AddBlockEntityTypeBlocksCallback;
 import fuzs.puzzleslib.api.event.v1.RegistryEntryAddedCallback;
 import fuzs.puzzleslib.api.event.v1.core.EventPhase;
@@ -59,6 +61,11 @@ public class BeaconUpgrade implements ModConstructor {
             MobEffectEvents.REMOVE.register(FlightEffectHandler::onMobEffectRemove);
             MobEffectEvents.EXPIRE.register(FlightEffectHandler::onMobEffectRemove);
         }
+    }
+
+    @Override
+    public void onRegisterPayloadTypes(PayloadTypesContext context) {
+        context.playToServer(ServerboundBeaconEffectsMessage.class, ServerboundBeaconEffectsMessage.STREAM_CODEC);
     }
 
     public static Identifier id(String path) {

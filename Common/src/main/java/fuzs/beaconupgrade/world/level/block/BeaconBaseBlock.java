@@ -10,14 +10,14 @@ import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
-public record BeaconBaseBlock(LevelBasedValue strength) {
+public record BeaconBaseBlock(LevelBasedValue power) {
     public static final Codec<BeaconBaseBlock> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    LevelBasedValue.CODEC.fieldOf("strength").forGetter(BeaconBaseBlock::strength))
+                    LevelBasedValue.CODEC.fieldOf("power").forGetter(BeaconBaseBlock::power))
             .apply(instance, BeaconBaseBlock::new));
     public static final BeaconBaseBlock DEFAULT = new BeaconBaseBlock(1);
 
-    public BeaconBaseBlock(int strength) {
-        this(new ClampedLevelBasedValue(LevelBasedValue.constant(strength),
+    public BeaconBaseBlock(int power) {
+        this(new ClampedLevelBasedValue(LevelBasedValue.constant(power),
                 LevelBasedValue.constant(0.0F),
                 LevelBasedValue.perLevel(1.0F)));
     }

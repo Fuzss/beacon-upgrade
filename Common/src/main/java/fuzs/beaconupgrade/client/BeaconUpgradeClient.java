@@ -1,6 +1,7 @@
 package fuzs.beaconupgrade.client;
 
 import fuzs.beaconupgrade.BeaconUpgrade;
+import fuzs.beaconupgrade.client.gui.screens.inventory.InfuserScreen;
 import fuzs.beaconupgrade.client.handler.BlockStateTranslator;
 import fuzs.beaconupgrade.handler.BlockConversionHandler;
 import fuzs.beaconupgrade.init.ModRegistry;
@@ -10,7 +11,6 @@ import fuzs.puzzleslib.api.client.core.v1.context.BlockStateResolverContext;
 import fuzs.puzzleslib.api.client.core.v1.context.MenuScreensContext;
 import fuzs.puzzleslib.api.client.core.v1.context.RenderTypesContext;
 import fuzs.puzzleslib.api.client.renderer.v1.model.ModelLoadingHelper;
-import net.minecraft.client.gui.screens.inventory.BeaconScreen;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BeaconRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -51,7 +51,7 @@ public class BeaconUpgradeClient implements ClientModConstructor {
 
     @Override
     public void onRegisterMenuScreens(MenuScreensContext context) {
-        context.registerMenuScreen(ModRegistry.BEACON_MENU_TYPE.value(), BeaconScreen::new);
+        context.registerMenuScreen(ModRegistry.BEACON_MENU_TYPE.value(), InfuserScreen::new);
     }
 
     @Override

@@ -1,4 +1,6 @@
 accessWidener   v2  named
+transitive-accessible   field   net/minecraft/client/gui/components/AbstractScrollArea  scrolling   Z
+transitive-extendable   method  net/minecraft/client/gui/components/AbstractSelectionList   getFirstEntryY  ()I
 accessible  field   net/minecraft/world/level/block/entity/BeaconBlockEntity    levels  I
 accessible  field   net/minecraft/world/level/block/entity/BeaconBlockEntity    lockKey Lnet/minecraft/world/LockCode;
 accessible  field   net/minecraft/world/level/block/entity/BeaconBlockEntity    dataAccess  Lnet/minecraft/world/inventory/ContainerData;
