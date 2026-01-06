@@ -4,9 +4,9 @@ import fuzs.beaconupgrade.BeaconUpgrade;
 import fuzs.beaconupgrade.world.effect.NutritionMobEffect;
 import fuzs.beaconupgrade.world.inventory.UpgradedBeaconMenu;
 import fuzs.beaconupgrade.world.item.enchantment.ClampedLevelBasedValue;
-import fuzs.beaconupgrade.world.level.block.BeaconBaseBlock;
-import fuzs.beaconupgrade.world.level.block.BeaconLevelEffect;
-import fuzs.beaconupgrade.world.level.block.BeaconPaymentItem;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconBaseBlock;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconLevelEffect;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconPaymentItem;
 import fuzs.beaconupgrade.world.level.block.entity.UpgradedBeaconBlockEntity;
 import fuzs.neoforgedatapackextensions.api.v1.DataMapToken;
 import fuzs.neoforgedatapackextensions.api.v2.DataMapRegistrar;
@@ -22,6 +22,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -73,6 +74,12 @@ public class ModRegistry {
 
     static final TagFactory TAGS = TagFactory.make(BeaconUpgrade.MOD_ID);
     public static final TagKey<Block> UNALTERED_BEACONS_BLOCK_TAG = TAGS.registerBlockTag("unaltered_beacons");
+    public static final TagKey<EntityType<?>> PLAYER_BEACON_TARGETS_ENTITY_TAG = TAGS.registerEntityTypeTag(
+            "player_beacon_targets");
+    public static final TagKey<EntityType<?>> PET_BEACON_TARGETS_ENTITY_TAG = TAGS.registerEntityTypeTag(
+            "pet_beacon_targets");
+    public static final TagKey<EntityType<?>> GOLEM_BEACON_TARGETS_ENTITY_TAG = TAGS.registerEntityTypeTag(
+            "golem_beacon_targets");
 
     public static final DataMapToken<Block, BeaconBaseBlock> BEACON_BASE_BLOCKS_DATA_MAP_TYPE = DataMapRegistrar.register(
             BeaconUpgrade.id("beacon_base_blocks"),

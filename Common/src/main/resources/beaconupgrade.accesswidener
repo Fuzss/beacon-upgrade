@@ -8,3 +8,5 @@ accessible  field   net/minecraft/world/inventory/BeaconMenu    beacon  Lnet/min
 accessible  field   net/minecraft/world/inventory/BeaconMenu    access  Lnet/minecraft/world/inventory/ContainerLevelAccess;
 transitive-accessible   method  net/minecraft/world/effect/MobEffect    <init>  (Lnet/minecraft/world/effect/MobEffectCategory;I)V
 transitive-accessible   method  net/minecraft/world/effect/MobEffect    <init>  (Lnet/minecraft/world/effect/MobEffectCategory;ILnet/minecraft/core/particles/ParticleOptions;)V
+transitive-accessible   field   net/minecraft/client/gui/components/AbstractWidget  tooltip Lnet/minecraft/client/gui/components/WidgetTooltipHolder;
+mutable field   net/minecraft/client/gui/components/ImageButton sprites Lnet/minecraft/client/gui/components/WidgetSprites;

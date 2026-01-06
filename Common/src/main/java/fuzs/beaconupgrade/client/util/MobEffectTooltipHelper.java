@@ -1,7 +1,7 @@
 package fuzs.beaconupgrade.client.util;
 
 import fuzs.beaconupgrade.services.ClientAbstractions;
-import fuzs.beaconupgrade.world.level.block.BeaconLevelEffect;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconLevelEffect;
 import fuzs.beaconupgrade.world.level.block.entity.UpgradedBeaconBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -9,10 +9,10 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Holder;
 import net.minecraft.data.AtlasIds;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.objects.AtlasSprite;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 
@@ -66,10 +66,11 @@ public class MobEffectTooltipHelper {
     }
 
     private static MutableComponent getSpriteDisplayName(Holder<MobEffect> holder) {
-        return Component.empty()
-                .append(Component.object(new AtlasSprite(AtlasIds.GUI, Gui.getMobEffectSprite(holder)))
-                        .withStyle(ChatFormatting.WHITE))
-                .append(CommonComponents.SPACE)
-                .append(holder.value().getDisplayName());
+        Component guiAtlasComponent = getGuiAtlasComponent(Gui.getMobEffectSprite(holder));
+        return Component.translatable("potion.withAmplifier", guiAtlasComponent, holder.value().getDisplayName());
+    }
+
+    public static Component getGuiAtlasComponent(Identifier identifier) {
+        return Component.object(new AtlasSprite(AtlasIds.GUI, identifier)).withStyle(ChatFormatting.WHITE);
     }
 }

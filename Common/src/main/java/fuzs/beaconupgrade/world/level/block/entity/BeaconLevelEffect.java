@@ -1,10 +1,9 @@
-package fuzs.beaconupgrade.world.level.block;
+package fuzs.beaconupgrade.world.level.block.entity;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.beaconupgrade.world.item.enchantment.ClampedLevelBasedValue;
-import fuzs.beaconupgrade.world.level.block.entity.UpgradedBeaconBlockEntity;
 import fuzs.neoforgedatapackextensions.api.v2.DataMapLookup;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;

@@ -2,7 +2,7 @@ package fuzs.beaconupgrade.client.gui.screens.inventory;
 
 import fuzs.beaconupgrade.BeaconUpgrade;
 import fuzs.beaconupgrade.client.util.MobEffectTooltipHelper;
-import fuzs.beaconupgrade.world.level.block.BeaconLevelEffect;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconLevelEffect;
 import fuzs.beaconupgrade.world.level.block.entity.UpgradedBeaconBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;

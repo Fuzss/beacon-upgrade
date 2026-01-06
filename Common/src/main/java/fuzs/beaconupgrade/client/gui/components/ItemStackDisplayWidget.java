@@ -35,7 +35,7 @@ public class ItemStackDisplayWidget extends AbstractWidget {
         int posX = this.getX() + 19 - 2 - this.font.width(this.getMessage());
         int posY = this.getY() + 6 + 3;
         guiGraphics.drawString(this.font, this.getMessage(), posX, posY, -1);
-        if (this.isHoveredOrFocused()) {
+        if (this.isHoveredOrFocused() && this.tooltip.get() != null) {
             guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
                     AbstractContainerScreen.SLOT_HIGHLIGHT_FRONT_SPRITE,
                     this.getX() - 4,

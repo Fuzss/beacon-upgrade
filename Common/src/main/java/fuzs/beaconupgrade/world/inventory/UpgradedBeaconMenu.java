@@ -2,9 +2,10 @@ package fuzs.beaconupgrade.world.inventory;
 
 import com.mojang.datafixers.util.Pair;
 import fuzs.beaconupgrade.init.ModRegistry;
-import fuzs.beaconupgrade.world.level.block.BeaconBaseBlock;
-import fuzs.beaconupgrade.world.level.block.BeaconLevelEffect;
-import fuzs.beaconupgrade.world.level.block.BeaconPaymentItem;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconBaseBlock;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconEffectTargets;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconLevelEffect;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconPaymentItem;
 import fuzs.beaconupgrade.world.level.block.entity.UpgradedBeaconBlockEntity;
 import fuzs.puzzleslib.api.container.v1.QuickMoveRuleSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -41,6 +42,7 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
             UpgradedBeaconMenu.this.slotsChanged(this);
         }
     };
+    private final ContainerData containerData;
     private final ContainerData pyramidLevelsData;
     private final ContainerData mobEffectsData;
     private final ContainerLevelAccess levelAccess;
@@ -48,20 +50,22 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
     public UpgradedBeaconMenu(int containerId, Inventory inventory) {
         this(containerId,
                 inventory,
-                new SimpleContainerData(UpgradedBeaconBlockEntity.LEVELS_DATA_SLOTS),
+                new SimpleContainerData(UpgradedBeaconBlockEntity.CONTAINER_DATA_SLOTS),
+                new SimpleContainerData(UpgradedBeaconBlockEntity.PYRAMID_LEVELS_DATA_SLOTS),
                 new SimpleContainerData(BuiltInRegistries.MOB_EFFECT.size()),
                 ContainerLevelAccess.NULL);
     }
 
-    public UpgradedBeaconMenu(int containerId, Inventory inventory, ContainerData pyramidLevelsData, ContainerData mobEffectsData, ContainerLevelAccess levelAccess) {
+    public UpgradedBeaconMenu(int containerId, Inventory inventory, ContainerData containerData, ContainerData pyramidLevelsData, ContainerData mobEffectsData, ContainerLevelAccess levelAccess) {
         super(ModRegistry.BEACON_MENU_TYPE.value(), containerId);
+        this.containerData = containerData;
         this.pyramidLevelsData = pyramidLevelsData;
         this.mobEffectsData = mobEffectsData;
         this.levelAccess = levelAccess;
-        this.addSlot(new Slot(this.container, PAYMENT_SLOT, 8, 34) {
+        this.addSlot(new Slot(this.container, PAYMENT_SLOT, 8, 23) {
             @Override
             public boolean mayPlace(ItemStack itemStack) {
-                return BeaconPaymentItem.is(itemStack);
+                return BeaconPaymentItem.is(itemStack.getItemHolder());
             }
 
             @Override
@@ -69,15 +73,15 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
                 return 1;
             }
         });
-        for (int k = 0; k < 4; ++k) {
-            EquipmentSlot equipmentSlot = InventoryMenu.SLOT_IDS[k];
+        for (int i = 0; i < 4; ++i) {
+            EquipmentSlot equipmentSlot = InventoryMenu.SLOT_IDS[i];
             Identifier identifier = InventoryMenu.TEXTURE_EMPTY_SLOTS.get(equipmentSlot);
             this.addSlot(new ArmorSlot(inventory,
                     inventory.player,
                     equipmentSlot,
-                    39 - k,
-                    8 + 188 * (k / 2),
-                    103 + (k % 2) * 18,
+                    39 - i,
+                    8 + 188 * (i / 2),
+                    103 + (i % 2) * 18,
                     identifier));
         }
 
@@ -94,6 +98,7 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
                 return InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD;
             }
         });
+        this.addDataSlots(containerData);
         this.addDataSlots(pyramidLevelsData);
         this.addDataSlots(mobEffectsData);
     }
@@ -127,6 +132,12 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
     }
 
     @Override
+    public boolean clickMenuButton(Player player, int id) {
+        this.containerData.set(UpgradedBeaconBlockEntity.EFFECT_TARGETS_DATA_SLOT, id);
+        return true;
+    }
+
+    @Override
     public void setItem(int slotId, int stateId, ItemStack itemStack) {
         super.setItem(slotId, stateId, itemStack);
         this.broadcastChanges();
@@ -156,14 +167,16 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
      * @see BeaconMenu#updateEffects(Optional, Optional)
      */
     private void updateEffects(Level level, BlockPos blockPos, Object2IntMap<Holder<MobEffect>> mobEffects) {
-        if (!this.container.getItem(PAYMENT_SLOT).isEmpty() || mobEffects.isEmpty()) {
-            if (!mobEffects.isEmpty()) {
-                this.container.removeItem(PAYMENT_SLOT, 1);
-            }
-
+        ItemStack itemStack = this.container.getItem(PAYMENT_SLOT);
+        if (!itemStack.isEmpty() || mobEffects.isEmpty()) {
+            this.setPaymentItem(itemStack);
             for (Holder<MobEffect> mobEffect : BeaconLevelEffect.getValidMobEffects()) {
                 this.setMobEffectAmplifier(mobEffect,
                         mobEffects.getOrDefault(mobEffect, UpgradedBeaconBlockEntity.DEFAULT_AMPLIFIER));
+            }
+
+            if (!mobEffects.isEmpty()) {
+                this.container.removeItem(PAYMENT_SLOT, 1);
             }
 
             level.blockEntityChanged(blockPos);
@@ -174,6 +187,23 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
                         }
                     });
         }
+    }
+
+    public int getPyramidLevels() {
+        return this.containerData.get(UpgradedBeaconBlockEntity.PYRAMID_LEVELS_DATA_SLOT);
+    }
+
+    public int getAllPowerLevels() {
+        return this.containerData.get(UpgradedBeaconBlockEntity.ALL_POWER_LEVELS_DATA_SLOT);
+    }
+
+    private void setPaymentItem(ItemStack itemStack) {
+        this.containerData.set(UpgradedBeaconBlockEntity.PAYMENT_ITEM_DATA_SLOT,
+                BuiltInRegistries.ITEM.getIdOrThrow(itemStack.getItem()));
+    }
+
+    public BeaconEffectTargets getEffectTargets() {
+        return BeaconEffectTargets.BY_ID.apply(this.containerData.get(UpgradedBeaconBlockEntity.EFFECT_TARGETS_DATA_SLOT));
     }
 
     public Object2IntMap<Holder<MobEffect>> packMobEffects() {
@@ -197,18 +227,11 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
         this.mobEffectsData.set(BuiltInRegistries.MOB_EFFECT.getIdOrThrow(mobEffect.value()), amplifier);
     }
 
-    public int getPyramidLevels() {
-        return this.pyramidLevelsData.get(UpgradedBeaconBlockEntity.PYRAMID_LEVELS_DATA_SLOT);
-    }
-
-    public int getAllPowerLevels() {
-        return this.pyramidLevelsData.get(UpgradedBeaconBlockEntity.ALL_POWER_LEVELS_DATA_SLOT);
-    }
-
-    public @Nullable Pair<Block, BeaconBaseBlock> getPyramidLevelPower(int pyramidLevel) {
-        int blockId = this.pyramidLevelsData.get(UpgradedBeaconBlockEntity.EXTRA_LEVELS_DATA_SLOTS + pyramidLevel - 1);
+    public @Nullable Pair<Block, BeaconBaseBlock> getPyramidLevelBonus(int pyramidLevel) {
+        int blockId = this.pyramidLevelsData.get(pyramidLevel - 1);
         Block block = BuiltInRegistries.BLOCK.byId(blockId);
-        BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(block.defaultBlockState());
+        Holder<Block> holder = BuiltInRegistries.BLOCK.wrapAsHolder(block);
+        BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(holder);
         return beaconBaseBlock != null ? Pair.of(block, beaconBaseBlock) : null;
     }
 }

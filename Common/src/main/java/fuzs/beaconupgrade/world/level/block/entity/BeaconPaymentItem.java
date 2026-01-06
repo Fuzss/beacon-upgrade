@@ -1,11 +1,12 @@
-package fuzs.beaconupgrade.world.level.block;
+package fuzs.beaconupgrade.world.level.block.entity;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.neoforgedatapackextensions.api.v2.DataMapLookup;
+import net.minecraft.core.Holder;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import org.jspecify.annotations.Nullable;
 
@@ -23,16 +24,16 @@ public record BeaconPaymentItem(LevelBasedValue durationInSeconds) {
         return Math.round(this.durationInSeconds.calculate(pyramidLevels)) * 20;
     }
 
-    public static boolean is(ItemStack itemStack) {
-        return get(itemStack) != null;
+    public static boolean is(Holder<Item> holder) {
+        return get(holder) != null;
     }
 
-    public static @Nullable BeaconPaymentItem get(ItemStack itemStack) {
+    public static @Nullable BeaconPaymentItem get(Holder<Item> holder) {
         BeaconPaymentItem beaconBaseBlock = DataMapLookup.getData(ModRegistry.BEACON_PAYMENT_ITEMS_DATA_MAP_TYPE,
-                itemStack.getItemHolder());
+                holder);
         if (beaconBaseBlock != null) {
             return beaconBaseBlock;
-        } else if (itemStack.is(ItemTags.BEACON_PAYMENT_ITEMS)) {
+        } else if (holder.is(ItemTags.BEACON_PAYMENT_ITEMS)) {
             return BeaconPaymentItem.DEFAULT;
         } else {
             return null;

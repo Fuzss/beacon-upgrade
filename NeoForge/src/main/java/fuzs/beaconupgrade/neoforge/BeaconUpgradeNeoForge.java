@@ -2,6 +2,7 @@ package fuzs.beaconupgrade.neoforge;
 
 import fuzs.beaconupgrade.BeaconUpgrade;
 import fuzs.beaconupgrade.data.tags.ModBlockTagsProvider;
+import fuzs.beaconupgrade.data.tags.ModEntityTypeTagsProvider;
 import fuzs.beaconupgrade.data.tags.ModItemTagsProvider;
 import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.beaconupgrade.neoforge.data.ModDataMapProvider;
@@ -20,8 +21,9 @@ public class BeaconUpgradeNeoForge {
         NeoForgeModRegistry.bootstrap();
         registerEventHandlers();
         DataProviderHelper.registerDataProviders(BeaconUpgrade.MOD_ID,
-                ModItemTagsProvider::new,
                 ModBlockTagsProvider::new,
+                ModItemTagsProvider::new,
+                ModEntityTypeTagsProvider::new,
                 ModDataMapProvider::new);
     }
 

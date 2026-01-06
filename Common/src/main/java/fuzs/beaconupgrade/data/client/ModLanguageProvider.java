@@ -2,7 +2,9 @@ package fuzs.beaconupgrade.data.client;
 
 import fuzs.beaconupgrade.client.gui.components.LevelBasedOperationButton;
 import fuzs.beaconupgrade.client.gui.screens.inventory.MobEffectAmplifierEntry;
+import fuzs.beaconupgrade.client.gui.screens.inventory.UpgradedBeaconScreen;
 import fuzs.beaconupgrade.init.ModRegistry;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconEffectTargets;
 import fuzs.puzzleslib.api.client.data.v2.AbstractLanguageProvider;
 import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
 import net.minecraft.core.Holder;
@@ -29,6 +31,11 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
                 "You need to build a larger pyramid with more layers to further amplify this effect.");
         translationBuilder.add(LevelBasedOperationButton.MODIFY_EFFECT_COMPONENT,
                 "You need to build a larger pyramid with more layers to modify this effect.");
+        translationBuilder.add(UpgradedBeaconScreen.PYRAMID_LEVEL_BONUS_KEY, "%s %s %s");
+        translationBuilder.add(UpgradedBeaconScreen.PYRAMID_LEVEL_BONUS_STATS_KEY, "(+%s/%s)");
+        translationBuilder.add(BeaconEffectTargets.PLAYERS.component, "Players");
+        translationBuilder.add(BeaconEffectTargets.PETS.component, "Pets");
+        translationBuilder.add(BeaconEffectTargets.GOLEMS.component, "Golems");
     }
 
     @Override

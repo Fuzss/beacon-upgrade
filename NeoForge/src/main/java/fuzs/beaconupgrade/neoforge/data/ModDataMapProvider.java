@@ -1,9 +1,9 @@
 package fuzs.beaconupgrade.neoforge.data;
 
 import fuzs.beaconupgrade.init.ModRegistry;
-import fuzs.beaconupgrade.world.level.block.BeaconBaseBlock;
-import fuzs.beaconupgrade.world.level.block.BeaconLevelEffect;
-import fuzs.beaconupgrade.world.level.block.BeaconPaymentItem;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconBaseBlock;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconLevelEffect;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconPaymentItem;
 import fuzs.neoforgedatapackextensions.neoforge.api.v1.NeoForgeDataMapToken;
 import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
 import net.minecraft.core.HolderLookup;
@@ -29,12 +29,12 @@ public class ModDataMapProvider extends DataMapProvider {
     @Override
     protected void gather(HolderLookup.Provider registries) {
         this.builder(NeoForgeDataMapToken.unwrap(ModRegistry.BEACON_BASE_BLOCKS_DATA_MAP_TYPE))
-                .add(BlockTags.COPPER, new BeaconBaseBlock(0), false)
-                .add(Blocks.IRON_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(1), false)
-                .add(Blocks.GOLD_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(2), false)
-                .add(Blocks.EMERALD_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(3), false)
-                .add(Blocks.DIAMOND_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(4), false)
-                .add(Blocks.NETHERITE_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(5), false);
+                .add(BlockTags.COPPER, new BeaconBaseBlock(0, 8), false)
+                .add(Blocks.IRON_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(1, 10), false)
+                .add(Blocks.GOLD_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(2, 12), false)
+                .add(Blocks.EMERALD_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(3, 15), false)
+                .add(Blocks.DIAMOND_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(4, 20), false)
+                .add(Blocks.NETHERITE_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(5, 30), false);
         this.builder(NeoForgeDataMapToken.unwrap(ModRegistry.BEACON_PAYMENT_ITEMS_DATA_MAP_TYPE))
                 .add(Items.COPPER_INGOT.builtInRegistryHolder(), new BeaconPaymentItem(3, 1), false)
                 .add(Items.IRON_INGOT.builtInRegistryHolder(), new BeaconPaymentItem(11, 2), false)

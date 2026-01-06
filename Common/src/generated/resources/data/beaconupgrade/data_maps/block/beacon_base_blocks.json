@@ -1,6 +1,11 @@
 {
   "values": {
     "#minecraft:copper": {
+      "effective_radius": {
+        "type": "minecraft:linear",
+        "base": 16.0,
+        "per_level_above_first": 8.0
+      },
       "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
@@ -13,6 +18,11 @@
       }
     },
     "minecraft:diamond_block": {
+      "effective_radius": {
+        "type": "minecraft:linear",
+        "base": 40.0,
+        "per_level_above_first": 20.0
+      },
       "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
@@ -25,6 +35,11 @@
       }
     },
     "minecraft:emerald_block": {
+      "effective_radius": {
+        "type": "minecraft:linear",
+        "base": 30.0,
+        "per_level_above_first": 15.0
+      },
       "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
@@ -37,6 +52,11 @@
       }
     },
     "minecraft:gold_block": {
+      "effective_radius": {
+        "type": "minecraft:linear",
+        "base": 24.0,
+        "per_level_above_first": 12.0
+      },
       "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
@@ -49,6 +69,11 @@
       }
     },
     "minecraft:iron_block": {
+      "effective_radius": {
+        "type": "minecraft:linear",
+        "base": 20.0,
+        "per_level_above_first": 10.0
+      },
       "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
@@ -61,6 +86,11 @@
       }
     },
     "minecraft:netherite_block": {
+      "effective_radius": {
+        "type": "minecraft:linear",
+        "base": 60.0,
+        "per_level_above_first": 30.0
+      },
       "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {

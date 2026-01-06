@@ -1,5 +1,7 @@
 package fuzs.beaconupgrade.client.gui.screens.inventory;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
 import fuzs.beaconupgrade.BeaconUpgrade;
@@ -9,9 +11,10 @@ import fuzs.beaconupgrade.client.gui.components.LevelBasedOperationButton;
 import fuzs.beaconupgrade.client.util.MobEffectTooltipHelper;
 import fuzs.beaconupgrade.network.client.ServerboundBeaconEffectsMessage;
 import fuzs.beaconupgrade.world.inventory.UpgradedBeaconMenu;
-import fuzs.beaconupgrade.world.level.block.BeaconBaseBlock;
-import fuzs.beaconupgrade.world.level.block.BeaconLevelEffect;
-import fuzs.beaconupgrade.world.level.block.BeaconPaymentItem;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconBaseBlock;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconEffectTargets;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconLevelEffect;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconPaymentItem;
 import fuzs.beaconupgrade.world.level.block.entity.UpgradedBeaconBlockEntity;
 import fuzs.puzzleslib.api.client.gui.v2.tooltip.ClientComponentSplitter;
 import fuzs.puzzleslib.api.client.gui.v2.tooltip.TooltipBuilder;
@@ -28,15 +31,14 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Util;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Inventory;
@@ -48,27 +50,37 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.block.Block;
+import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<UpgradedBeaconMenu> implements ContainerListener {
     public static final Identifier TEXTURE_LOCATION = BeaconUpgrade.id("textures/gui/container/beacon.png");
     public static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
-    public static final List<Identifier> PYRAMID_LEVEL_SPRITES = List.of(BeaconUpgrade.id("container/beacon/level_1"),
-            BeaconUpgrade.id("container/beacon/level_2"),
-            BeaconUpgrade.id("container/beacon/level_3"),
-            BeaconUpgrade.id("container/beacon/level_4"),
-            BeaconUpgrade.id("container/beacon/level_5"));
-    public static final WidgetSprites BUTTON_SPRITES = new WidgetSprites(BeaconUpgrade.id("container/beacon/button"),
-            BeaconUpgrade.id("container/beacon/button_disabled"),
-            BeaconUpgrade.id("container/beacon/button_highlighted"));
+    public static final WidgetSprites LARGE_BUTTON_SPRITES = new WidgetSprites(BeaconUpgrade.id(
+            "container/beacon/large_button"),
+            BeaconUpgrade.id("container/beacon/large_button_disabled"),
+            BeaconUpgrade.id("container/beacon/large_button_highlighted"));
     public static final WidgetSprites CONFIRM_BUTTON_SPRITES = new WidgetSprites(BeaconUpgrade.id(
             "container/beacon/confirm_button"),
             BeaconUpgrade.id("container/beacon/confirm_button_disabled"),
             BeaconUpgrade.id("container/beacon/confirm_button_highlighted"));
+    public static final WidgetSprites CANCEL_BUTTON_SPRITES = new WidgetSprites(BeaconUpgrade.id(
+            "container/beacon/cancel_button"),
+            BeaconUpgrade.id("container/beacon/cancel_button_disabled"),
+            BeaconUpgrade.id("container/beacon/cancel_button_highlighted"));
+    public static final WidgetSprites PLAYER_BUTTON_SPRITES = new WidgetSprites(BeaconUpgrade.id(
+            "container/beacon/player_button"),
+            BeaconUpgrade.id("container/beacon/player_button_disabled"),
+            BeaconUpgrade.id("container/beacon/player_button_highlighted"));
+    public static final WidgetSprites PET_BUTTON_SPRITES = new WidgetSprites(BeaconUpgrade.id(
+            "container/beacon/pet_button"),
+            BeaconUpgrade.id("container/beacon/pet_button_disabled"),
+            BeaconUpgrade.id("container/beacon/pet_button_highlighted"));
+    public static final WidgetSprites GOLEM_BUTTON_SPRITES = new WidgetSprites(BeaconUpgrade.id(
+            "container/beacon/golem_button"),
+            BeaconUpgrade.id("container/beacon/golem_button_disabled"),
+            BeaconUpgrade.id("container/beacon/golem_button_highlighted"));
     public static final WidgetSprites REMOVE_BUTTON_SPRITES = new WidgetSprites(BeaconUpgrade.id(
             "container/beacon/remove_button"),
             BeaconUpgrade.id("container/beacon/remove_button_disabled"),
@@ -77,11 +89,28 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
             "container/beacon/add_button"),
             BeaconUpgrade.id("container/beacon/add_button_disabled"),
             BeaconUpgrade.id("container/beacon/add_button_highlighted"));
+    public static final List<Identifier> PYRAMID_LEVEL_SPRITES = List.of(BeaconUpgrade.id("container/beacon/level_1"),
+            BeaconUpgrade.id("container/beacon/level_2"),
+            BeaconUpgrade.id("container/beacon/level_3"),
+            BeaconUpgrade.id("container/beacon/level_4"),
+            BeaconUpgrade.id("container/beacon/level_5"));
+    public static final Map<BeaconEffectTargets, WidgetSprites> EFFECT_TARGET_SPRITES = Maps.immutableEnumMap(
+            ImmutableMap.of(BeaconEffectTargets.PLAYERS,
+                    PLAYER_BUTTON_SPRITES,
+                    BeaconEffectTargets.PETS,
+                    PET_BUTTON_SPRITES,
+                    BeaconEffectTargets.GOLEMS,
+                    GOLEM_BUTTON_SPRITES));
+    public static final String PYRAMID_LEVEL_BONUS_KEY = Util.makeDescriptionId("gui",
+            BeaconUpgrade.id("beacon.tooltip.pyramid_level_bonus"));
+    public static final String PYRAMID_LEVEL_BONUS_STATS_KEY = Util.makeDescriptionId("gui",
+            BeaconUpgrade.id("beacon.tooltip.pyramid_level_bonus_stats"));
     public static final List<Identifier> EMPTY_SLOT_ICONS = List.of(SmithingTemplateItem.EMPTY_SLOT_INGOT,
             SmithingTemplateItem.EMPTY_SLOT_DIAMOND,
             SmithingTemplateItem.EMPTY_SLOT_EMERALD);
-    private static final int CONFIRM_BUTTON_OFFSET_X = 7;
-    private static final int CONFIRM_BUTTON_OFFSET_Y = 55;
+    private static final int BUTTON_OFFSET_X = 7;
+    private static final int CONFIRM_BUTTON_OFFSET_Y = 44;
+    private static final int TARGETS_BUTTON_OFFSET_Y = 66;
     private static final int UPDATE_PYRAMID_LEVELS = 1 << 0;
     private static final int UPDATE_SEARCH_RESULTS = 1 << 1;
     private static final int UPDATE_CONFIRM_BUTTON = 1 << 2;
@@ -95,6 +124,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     private boolean ignoreTextInput;
     private AbstractWidget pyramidLevelsWidget;
     private ImageButton confirmButton;
+    private ImageButton cancelButton;
     private Object2IntMap<Holder<MobEffect>> mobEffects = Object2IntMaps.emptyMap();
     private int updateFlags;
 
@@ -210,45 +240,84 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                         Style.EMPTY.withColor(ChatFormatting.RED));
             }
         });
-        this.confirmButton = this.addRenderableWidget(new ImageButton(this.leftPos + CONFIRM_BUTTON_OFFSET_X,
+        this.confirmButton = this.addRenderableWidget(new ImageButton(this.leftPos + BUTTON_OFFSET_X,
                 this.topPos + CONFIRM_BUTTON_OFFSET_Y,
                 18,
                 18,
                 CONFIRM_BUTTON_SPRITES,
+                this::clickConfirmButton));
+        this.cancelButton = this.addRenderableWidget(new ImageButton(this.leftPos + BUTTON_OFFSET_X,
+                this.topPos + CONFIRM_BUTTON_OFFSET_Y,
+                18,
+                18,
+                CANCEL_BUTTON_SPRITES,
+                this::clickConfirmButton));
+        this.confirmButton.visible = this.cancelButton.visible = false;
+        AbstractWidget abstractWidget = this.addRenderableWidget(new ImageButton(this.leftPos + BUTTON_OFFSET_X,
+                this.topPos + TARGETS_BUTTON_OFFSET_Y,
+                18,
+                18,
+                PLAYER_BUTTON_SPRITES,
                 (Button button) -> {
-                    MessageSender.broadcast(new ServerboundBeaconEffectsMessage(this.getMenu().containerId,
-                            this.mobEffects));
-                    this.searchBox.setValue("");
-                    this.onClose();
-                }));
+                    if (this.getMenu()
+                            .clickMenuButton(this.minecraft.player, this.getMenu().getEffectTargets().ordinal() + 1)) {
+                        this.minecraft.gameMode.handleInventoryButtonClick(this.getMenu().containerId,
+                                this.getMenu().getEffectTargets().ordinal());
+                    }
+                }) {
+            @Override
+            public void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+                BeaconEffectTargets effectTargets = UpgradedBeaconScreen.this.getMenu().getEffectTargets();
+                this.sprites = EFFECT_TARGET_SPRITES.getOrDefault(effectTargets, PLAYER_BUTTON_SPRITES);
+                super.renderContents(guiGraphics, mouseX, mouseY, partialTick);
+            }
+        });
+        TooltipBuilder.create()
+                .setLines(() -> Collections.singletonList(this.getMenu().getEffectTargets().component))
+                .build(abstractWidget);
+    }
+
+    private void clickConfirmButton(Button button) {
+        MessageSender.broadcast(new ServerboundBeaconEffectsMessage(this.getMenu().containerId, this.mobEffects));
+        this.searchBox.setValue("");
     }
 
     public void refreshConfirmButton() {
         this.removeUpdateFlag(UPDATE_CONFIRM_BUTTON);
         ItemStack itemStack = this.getMenu().getSlot(UpgradedBeaconMenu.PAYMENT_SLOT).getItem();
-        this.confirmButton.active = (!itemStack.isEmpty() || this.mobEffects.isEmpty()) && this.hasChanged();
-        if (this.mobEffects.isEmpty()) {
-            this.confirmButton.setTooltip(null);
+        if (this.mobEffects.isEmpty() && this.hasChanged()) {
+            this.cancelButton.visible = true;
+            this.confirmButton.visible = false;
         } else {
-            TooltipBuilder tooltipBuilder = TooltipBuilder.create(Items.BEACON.getDefaultInstance()
-                    .getStyledHoverName()).splitLines(200);
-            BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack);
-            int duration = beaconPaymentItem != null ?
-                    beaconPaymentItem.getMobEffectDuration(this.getMenu().getPyramidLevels()) : 0;
-            List<MobEffectInstance> mobEffects = this.mobEffects.object2IntEntrySet()
-                    .stream()
-                    .map((Object2IntMap.Entry<Holder<MobEffect>> entry) -> {
-                        return new MobEffectInstance(entry.getKey(), duration, entry.getIntValue());
-                    })
-                    .sorted()
-                    .toList();
-            PotionContents.addPotionTooltip(mobEffects,
-                    tooltipBuilder::addLines,
-                    1.0F,
-                    this.minecraft.level.tickRateManager().tickrate());
-
-            tooltipBuilder.build(this.confirmButton);
+            this.cancelButton.visible = false;
+            this.confirmButton.visible = true;
+            this.confirmButton.active = !itemStack.isEmpty() && this.hasChanged();
         }
+
+        TooltipBuilder tooltipBuilder = TooltipBuilder.create(this.getTooltipLines(itemStack)).splitLines(200);
+        tooltipBuilder.build(this.confirmButton);
+        tooltipBuilder.build(this.cancelButton);
+    }
+
+    private List<Component> getTooltipLines(ItemStack itemStack) {
+        List<Component> tooltipLines = new ArrayList<>();
+        tooltipLines.add(Items.BEACON.getDefaultInstance().getStyledHoverName());
+        BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack.getItemHolder());
+        int duration =
+                beaconPaymentItem != null ? beaconPaymentItem.getMobEffectDuration(this.getMenu().getPyramidLevels()) :
+                        0;
+        List<MobEffectInstance> mobEffects = this.mobEffects.object2IntEntrySet()
+                .stream()
+                .map((Object2IntMap.Entry<Holder<MobEffect>> entry) -> {
+                    return new MobEffectInstance(entry.getKey(), duration, entry.getIntValue());
+                })
+                .sorted()
+                .toList();
+        PotionContents.addPotionTooltip(mobEffects,
+                tooltipLines::add,
+                1.0F,
+                this.minecraft.level.tickRateManager().tickrate());
+        return tooltipLines;
     }
 
     private void refreshPyramidLevels() {
@@ -258,34 +327,41 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
             this.pyramidLevelsWidget.setMessage(CommonComponents.EMPTY);
             this.pyramidLevelsWidget.setTooltip(null);
         } else {
-            Component component = MobEffectTooltipHelper.getEnchantmentLevel(pyramidLevels);
-            this.pyramidLevelsWidget.setMessage(component);
+            Component pyramidLevelComponent = MobEffectTooltipHelper.getEnchantmentLevel(pyramidLevels);
+            this.pyramidLevelsWidget.setMessage(pyramidLevelComponent);
             TooltipBuilder tooltipBuilder = TooltipBuilder.create()
                     .splitLines(200)
-                    .addLines(Component.translatable(MobEffectAmplifierEntry.PYRAMID_LEVELS_KEY, component));
+                    .addLines(Component.translatable(MobEffectAmplifierEntry.PYRAMID_LEVELS_KEY,
+                            pyramidLevelComponent));
             for (int pyramidLevel = UpgradedBeaconBlockEntity.MIN_PYRAMID_LEVELS;
                  pyramidLevel <= pyramidLevels; pyramidLevel++) {
-                Pair<Block, BeaconBaseBlock> pyramidLevelPower = this.getMenu().getPyramidLevelPower(pyramidLevel);
-                if (pyramidLevelPower != null) {
-                    Block block = pyramidLevelPower.getFirst();
-                    Identifier identifier = getPyramidLevelSprite(pyramidLevel);
-                    tooltipBuilder.addLines(Component.empty()
-                            .append(Component.object(new AtlasSprite(AtlasIds.GUI, identifier))
-                                    .withStyle(ChatFormatting.WHITE))
-                            .append(CommonComponents.SPACE)
-                            .append(block.getName())
-                            .append(CommonComponents.SPACE)
-                            .append(MobEffectTooltipHelper.wrapInRoundBrackets(Component.literal(
-                                            "+" + pyramidLevelPower.getSecond().getPyramidLevelBonus(pyramidLevel) + "/"
-                                                    + pyramidLevelPower.getSecond().getMaxPyramidLevelBonus()))
-                                    .withColor(block.defaultMapColor().col))
-                            .withStyle(ChatFormatting.GRAY));
+                Component pyramidLevelBonusComponent = this.getPyramidLevelBonus(pyramidLevel);
+                if (pyramidLevelBonusComponent != null) {
+                    tooltipBuilder.addLines(pyramidLevelBonusComponent);
                 } else {
                     break;
                 }
             }
 
             tooltipBuilder.build(this.pyramidLevelsWidget);
+        }
+    }
+
+    private @Nullable Component getPyramidLevelBonus(int pyramidLevel) {
+        Pair<Block, BeaconBaseBlock> pyramidLevelPower = this.getMenu().getPyramidLevelBonus(pyramidLevel);
+        if (pyramidLevelPower != null) {
+            Block block = pyramidLevelPower.getFirst();
+            Identifier identifier = getPyramidLevelSprite(pyramidLevel);
+            Component guiAtlasComponent = MobEffectTooltipHelper.getGuiAtlasComponent(identifier);
+            int pyramidLevelBonus = pyramidLevelPower.getSecond().getPyramidLevelBonus(pyramidLevel);
+            int maxPyramidLevelBonus = pyramidLevelPower.getSecond().getMaxPyramidLevelBonus();
+            Component component = Component.translatable(PYRAMID_LEVEL_BONUS_STATS_KEY,
+                    pyramidLevelBonus,
+                    maxPyramidLevelBonus).withColor(block.defaultMapColor().col);
+            return Component.translatable(PYRAMID_LEVEL_BONUS_KEY, guiAtlasComponent, block.getName(), component)
+                    .withStyle(ChatFormatting.GRAY);
+        } else {
+            return null;
         }
     }
 
@@ -398,8 +474,8 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                 TEXTURE_LOCATION,
                 this.leftPos,
                 this.topPos,
-                0,
-                0,
+                0.0F,
+                0.0F,
                 this.imageWidth,
                 this.imageHeight,
                 256,
@@ -424,9 +500,12 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     @Override
     public void dataChanged(AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {
         this.addUpdateFlag(UPDATE_SEARCH_RESULTS, UPDATE_CONFIRM_BUTTON);
-        if (dataSlotIndex < UpgradedBeaconBlockEntity.LEVELS_DATA_SLOTS) {
+        if (dataSlotIndex < UpgradedBeaconBlockEntity.CONTAINER_DATA_SLOTS
+                + UpgradedBeaconBlockEntity.PYRAMID_LEVELS_DATA_SLOTS) {
             this.addUpdateFlag(UPDATE_PYRAMID_LEVELS);
-        } else if (dataSlotIndex < UpgradedBeaconBlockEntity.LEVELS_DATA_SLOTS + BuiltInRegistries.MOB_EFFECT.size()) {
+        } else if (dataSlotIndex
+                < UpgradedBeaconBlockEntity.CONTAINER_DATA_SLOTS + UpgradedBeaconBlockEntity.PYRAMID_LEVELS_DATA_SLOTS
+                + BuiltInRegistries.MOB_EFFECT.size()) {
             this.addUpdateFlag(UPDATE_MOB_EFFECTS);
         }
     }
@@ -487,7 +566,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
 
             @Override
             public void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
-                Identifier buttonSprite = BUTTON_SPRITES.get(!this.levelBasedEntry.isInactive(),
+                Identifier buttonSprite = LARGE_BUTTON_SPRITES.get(!this.levelBasedEntry.isInactive(),
                         this.levelBasedEntry.isPresent());
                 guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
                         buttonSprite,
