@@ -37,6 +37,13 @@ import java.util.function.Function;
 
 public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements TickingBlockEntity {
     /**
+     * The default {@link MobEffectInstance} amplifier for mob effects that are not present.
+     *
+     * @see MobEffectInstance#MIN_AMPLIFIER
+     * @see MobEffectInstance#MAX_AMPLIFIER
+     */
+    public static final int DEFAULT_AMPLIFIER = -1;
+    /**
      * Always require a level of at least one, as the beacon structure itself will not activate with less.
      */
     public static final int MIN_PYRAMID_LEVELS = 1;
@@ -58,17 +65,25 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
             Function.identity());
     public static final String TAG_LEVEL_STRENGTHS = "power_levels";
     public static final String TAG_MOB_EFFECTS = "mob_effects";
+    /**
+     * @see BeaconBlockEntity#TAG_PRIMARY
+     */
+    private static final String TAG_PRIMARY = "primary_effect";
+    /**
+     * @see BeaconBlockEntity#TAG_SECONDARY
+     */
+    private static final String TAG_SECONDARY = "secondary_effect";
 
-    private final Object2IntMap<Holder<MobEffect>> mobEffects = new Object2IntOpenHashMap<>();
+    private final Object2IntMap<Holder<MobEffect>> mobEffects;
     private final ContainerData mobEffectsData = new ContainerData() {
         @Override
         public int get(int index) {
             MobEffect mobEffect = BuiltInRegistries.MOB_EFFECT.byId(index);
             if (mobEffect != null) {
-                return UpgradedBeaconBlockEntity.this.mobEffects.getOrDefault(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(
-                        mobEffect), -1);
+                Holder<MobEffect> holder = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(mobEffect);
+                return UpgradedBeaconBlockEntity.this.mobEffects.getInt(holder);
             } else {
-                return -1;
+                return DEFAULT_AMPLIFIER;
             }
         }
 
@@ -77,14 +92,7 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
             MobEffect mobEffect = BuiltInRegistries.MOB_EFFECT.byId(index);
             if (mobEffect != null) {
                 Holder<MobEffect> holder = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(mobEffect);
-                int maxAmplifier = BeaconLevelEffect.getMaxAmplifier(holder,
-                        UpgradedBeaconBlockEntity.this.powerLevels.length);
-                int newAmplifier = Math.min(maxAmplifier, value);
-                if (newAmplifier >= 0) {
-                    UpgradedBeaconBlockEntity.this.mobEffects.put(holder, newAmplifier);
-                } else {
-                    UpgradedBeaconBlockEntity.this.mobEffects.removeInt(holder);
-                }
+                UpgradedBeaconBlockEntity.this.setMobEffectAmplifier(holder, value);
             }
         }
 
@@ -97,12 +105,12 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
         @Override
         public int get(int index) {
             if (index == PYRAMID_LEVELS_DATA_SLOT) {
-                return UpgradedBeaconBlockEntity.this.powerLevels.length;
+                return UpgradedBeaconBlockEntity.this.pyramidLevels.length;
             } else if (index == ALL_POWER_LEVELS_DATA_SLOT) {
                 return UpgradedBeaconBlockEntity.this.getAllPowerLevels();
             } else if (index - EXTRA_LEVELS_DATA_SLOTS >= 0
-                    && index - EXTRA_LEVELS_DATA_SLOTS < UpgradedBeaconBlockEntity.this.powerLevels.length) {
-                return UpgradedBeaconBlockEntity.this.powerLevels[index - EXTRA_LEVELS_DATA_SLOTS];
+                    && index - EXTRA_LEVELS_DATA_SLOTS < UpgradedBeaconBlockEntity.this.pyramidLevels.length) {
+                return UpgradedBeaconBlockEntity.this.pyramidLevels[index - EXTRA_LEVELS_DATA_SLOTS];
             } else {
                 return -1;
             }
@@ -111,8 +119,8 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
         @Override
         public void set(int index, int value) {
             if (index - EXTRA_LEVELS_DATA_SLOTS >= 0
-                    && index - EXTRA_LEVELS_DATA_SLOTS < UpgradedBeaconBlockEntity.this.powerLevels.length) {
-                UpgradedBeaconBlockEntity.this.powerLevels[index - EXTRA_LEVELS_DATA_SLOTS] = value;
+                    && index - EXTRA_LEVELS_DATA_SLOTS < UpgradedBeaconBlockEntity.this.pyramidLevels.length) {
+                UpgradedBeaconBlockEntity.this.pyramidLevels[index - EXTRA_LEVELS_DATA_SLOTS] = value;
             }
         }
 
@@ -121,11 +129,19 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
             return LEVELS_DATA_SLOTS;
         }
     };
-    private int[] powerLevels = new int[0];
+    /**
+     * The stored integers represent the numeric block ids (via {@link net.minecraft.core.IdMap#getId(Object)}) for the
+     * block on that layer with the lowest value returned from {@link BeaconBaseBlock#getMaxPyramidLevelBonus()}.
+     *
+     * @see #getPyramidLevels(Level, BlockPos)
+     */
+    private int[] pyramidLevels = new int[0];
 
     public UpgradedBeaconBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(blockPos, blockState);
         this.type = ModRegistry.BEACON_BLOCK_ENTITY_TYPE.value();
+        this.mobEffects = new Object2IntOpenHashMap<>();
+        this.mobEffects.defaultReturnValue(DEFAULT_AMPLIFIER);
     }
 
     @Override
@@ -133,13 +149,31 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
         return ModRegistry.BEACON_BLOCK_ENTITY_TYPE.value();
     }
 
+    public int getPyramidLevels() {
+        return this.pyramidLevels.length;
+    }
+
     public int getAllPowerLevels() {
         int allPowerLevel = 0;
-        for (int powerLevel : this.powerLevels) {
+        for (int powerLevel : this.pyramidLevels) {
             allPowerLevel += powerLevel;
         }
 
         return allPowerLevel;
+    }
+
+    private void setMobEffectAmplifier(Holder<MobEffect> mobEffect, int amplifier) {
+        setMobEffectAmplifier(this.mobEffects, this.getPyramidLevels(), mobEffect, amplifier);
+    }
+
+    public static void setMobEffectAmplifier(Object2IntMap<Holder<MobEffect>> mobEffects, int pyramidLevels, Holder<MobEffect> mobEffect, int amplifier) {
+        int maxAmplifier = BeaconLevelEffect.get(mobEffect).getMaxAmplifier(pyramidLevels);
+        amplifier = Math.clamp(amplifier, DEFAULT_AMPLIFIER, maxAmplifier);
+        if (amplifier >= MobEffectInstance.MIN_AMPLIFIER) {
+            mobEffects.put(mobEffect, amplifier);
+        } else {
+            mobEffects.removeInt(mobEffect);
+        }
     }
 
     @Override
@@ -153,13 +187,13 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
     }
 
     public int[] updatePowerLevels(Level level, BlockPos blockPos) {
-        return this.powerLevels = this.getPyramidLevelPowerBlocks(level, blockPos);
+        return this.pyramidLevels = this.getPyramidLevels(level, blockPos);
     }
 
     /**
      * @see BeaconBlockEntity#updateBase(Level, int, int, int)
      */
-    private int[] getPyramidLevelPowerBlocks(Level level, BlockPos blockPos) {
+    private int[] getPyramidLevels(Level level, BlockPos blockPos) {
         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
         IntList powerBlocks = new IntArrayList();
         for (int pyramidLevel = MIN_PYRAMID_LEVELS; pyramidLevel <= MAX_PYRAMID_LEVELS; pyramidLevel++) {
@@ -176,7 +210,7 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
                     if (minPowerBlock == null || !blockState.is(minPowerBlock)) {
                         BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(blockState);
                         if (beaconBaseBlock != null) {
-                            int powerLevel = beaconBaseBlock.getMaxPowerLevel();
+                            int powerLevel = beaconBaseBlock.getMaxPyramidLevelBonus();
                             if (powerLevel < minPowerLevel) {
                                 minPowerLevel = powerLevel;
                                 minPowerBlock = blockState.getBlock();
@@ -201,25 +235,21 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
     @Override
     protected void loadAdditional(ValueInput valueInput) {
         super.loadAdditional(valueInput);
-        this.powerLevels = valueInput.getIntArray(TAG_LEVEL_STRENGTHS).orElseGet(() -> new int[0]);
-        this.levels = this.powerLevels.length;
+        this.pyramidLevels = valueInput.getIntArray(TAG_LEVEL_STRENGTHS).orElseGet(() -> new int[0]);
+        this.levels = this.pyramidLevels.length;
         this.mobEffects.clear();
         valueInput.read(TAG_MOB_EFFECTS, MOB_EFFECTS_CODEC).ifPresent((Object2IntMap<Holder<MobEffect>> mobEffects) -> {
-            for (Object2IntMap.Entry<Holder<MobEffect>> entry : mobEffects.object2IntEntrySet()) {
-                int maxAmplifier = BeaconLevelEffect.getMaxAmplifier(entry.getKey(), this.powerLevels.length);
-                int newAmplifier = Math.min(maxAmplifier, entry.getIntValue());
-                if (newAmplifier >= 0) {
-                    this.mobEffects.put(entry.getKey(), newAmplifier);
-                }
-            }
+            mobEffects.forEach(this::setMobEffectAmplifier);
         });
     }
 
     @Override
     protected void saveAdditional(ValueOutput valueOutput) {
         super.saveAdditional(valueOutput);
-        if (this.powerLevels.length > 0) {
-            valueOutput.putIntArray(TAG_LEVEL_STRENGTHS, this.powerLevels);
+        valueOutput.discard(TAG_PRIMARY);
+        valueOutput.discard(TAG_SECONDARY);
+        if (this.pyramidLevels.length > 0) {
+            valueOutput.putIntArray(TAG_LEVEL_STRENGTHS, this.pyramidLevels);
         }
 
         if (!this.mobEffects.isEmpty()) {

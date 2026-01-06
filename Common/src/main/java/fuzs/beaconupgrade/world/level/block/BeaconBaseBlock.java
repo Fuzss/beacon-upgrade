@@ -15,21 +15,21 @@ import org.jspecify.annotations.Nullable;
 
 public record BeaconBaseBlock(LevelBasedValue pyramidLevelBonus) {
     public static final Codec<BeaconBaseBlock> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    LevelBasedValue.CODEC.fieldOf("power_level").forGetter(BeaconBaseBlock::pyramidLevelBonus))
+                    LevelBasedValue.CODEC.fieldOf("pyramid_level_bonus").forGetter(BeaconBaseBlock::pyramidLevelBonus))
             .apply(instance, BeaconBaseBlock::new));
     public static final BeaconBaseBlock DEFAULT = new BeaconBaseBlock(1);
 
-    public BeaconBaseBlock(int power) {
-        this(new ClampedLevelBasedValue(LevelBasedValue.constant(power),
+    public BeaconBaseBlock(int bonus) {
+        this(new ClampedLevelBasedValue(LevelBasedValue.constant(bonus),
                 LevelBasedValue.constant(0.0F),
                 LevelBasedValue.perLevel(1.0F)));
     }
 
-    public int getMaxPowerLevel() {
-        return this.getPowerLevel(UpgradedBeaconBlockEntity.MAX_PYRAMID_LEVELS);
+    public int getMaxPyramidLevelBonus() {
+        return this.getPyramidLevelBonus(UpgradedBeaconBlockEntity.MAX_PYRAMID_LEVELS);
     }
 
-    public int getPowerLevel(int pyramidLevels) {
+    public int getPyramidLevelBonus(int pyramidLevels) {
         return Math.round(this.pyramidLevelBonus.calculate(pyramidLevels));
     }
 
@@ -58,7 +58,7 @@ public record BeaconBaseBlock(LevelBasedValue pyramidLevelBonus) {
                     .values()
                     .stream()
                     .mapToInt((BeaconBaseBlock beaconBaseBlock) -> {
-                        return beaconBaseBlock.getPowerLevel(levels.intValue());
+                        return beaconBaseBlock.getPyramidLevelBonus(levels.intValue());
                     })
                     .max()
                     .orElse(0);

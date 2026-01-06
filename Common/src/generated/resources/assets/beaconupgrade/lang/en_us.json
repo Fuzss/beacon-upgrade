@@ -5,9 +5,8 @@
   "effect.beaconupgrade.flight": "Flight",
   "effect.beaconupgrade.nutrition": "Nutrition",
   "effect.beaconupgrade.reach": "Reach",
-  "gui.beaconupgrade.infusing.tooltip.enchanting_power_hint": "Place more bookshelves in a square around the infuser on up to two layers.",
-  "gui.beaconupgrade.mob_effect.tooltip.current_enchanting_power": "Pyramid Levels: %s / %s",
-  "gui.beaconupgrade.mob_effect.tooltip.low_power1": "Further increasing the level for this enchantment requires an infuser with more enchanting power.",
-  "gui.beaconupgrade.mob_effect.tooltip.low_power2": "Modifying the level for this enchantment requires an infuser with more enchanting power.",
-  "gui.beaconupgrade.mob_effect.tooltip.unknown_enchantment": "You need to build a larger pyramid with more layers to use this effect."
+  "gui.beaconupgrade.beacon.tooltip.amplify_effect": "You need to build a larger pyramid with more layers to further amplify this effect.",
+  "gui.beaconupgrade.beacon.tooltip.modify_effect": "You need to build a larger pyramid with more layers to modify this effect.",
+  "gui.beaconupgrade.beacon.tooltip.pyramid_levels": "Pyramid Levels: %s",
+  "gui.beaconupgrade.beacon.tooltip.unlock_effect": "You need to build a larger pyramid with more layers to unlock this effect."
 }

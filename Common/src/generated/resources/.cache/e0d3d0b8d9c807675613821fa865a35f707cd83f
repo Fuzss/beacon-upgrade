@@ -1,4 +1,4 @@
-// 1.21.11	2026-01-05T12:45:40.176753	Data Maps
-07e1e3e17fc6b5bc3e10332193bdb80f92fc9f98 data/beaconupgrade/data_maps/block/beacon_base_blocks.json
-f6d66bf80ac9d0ac9bc616c5a18fcc6d2faa9287 data/beaconupgrade/data_maps/item/beacon_payment_items.json
+// 1.21.11	2026-01-06T15:24:22.139504	Data Maps
+57cb3952b929741513a3a043ab3f48afa0c1635c data/beaconupgrade/data_maps/block/beacon_base_blocks.json
+de57deed46925c73ed96e3e6b6baae017bc65a37 data/beaconupgrade/data_maps/item/beacon_payment_items.json
 1280b99b609a907095b8e9a88e2b76197a439cbb data/beaconupgrade/data_maps/mob_effect/beacon_level_effects.json

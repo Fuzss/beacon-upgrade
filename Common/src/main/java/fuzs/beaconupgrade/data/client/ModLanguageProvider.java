@@ -1,7 +1,6 @@
 package fuzs.beaconupgrade.data.client;
 
 import fuzs.beaconupgrade.client.gui.components.LevelBasedOperationButton;
-import fuzs.beaconupgrade.client.gui.screens.inventory.InfuserScreen;
 import fuzs.beaconupgrade.client.gui.screens.inventory.MobEffectAmplifierEntry;
 import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.puzzleslib.api.client.data.v2.AbstractLanguageProvider;
@@ -23,15 +22,13 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
         translationBuilder.addMobEffect(ModRegistry.BANE_OF_RAIDERS_MOB_EFFECT, "Bane of Raiders");
         translationBuilder.addMobEffect(ModRegistry.BANE_OF_TRADERS_MOB_EFFECT, "Bane of Traders");
         translationBuilder.addMobEffect(ModRegistry.FLIGHT_MOB_EFFECT, "Flight");
-        translationBuilder.add(MobEffectAmplifierEntry.KEY_CURRENT_ENCHANTING_POWER, "Pyramid Levels: %s");
-        translationBuilder.add(InfuserScreen.KEY_TOOLTIP_HINT,
-                "Place more bookshelves in a square around the infuser on up to two layers.");
-        translationBuilder.add(MobEffectAmplifierEntry.UNKNOWN_ENCHANT_COMPONENT,
-                "You need to build a larger pyramid with more layers to use this effect.");
-        translationBuilder.add(LevelBasedOperationButton.INCREASE_LEVEL_COMPONENT,
-                "Further increasing the level for this enchantment requires an infuser with more enchanting power.");
-        translationBuilder.add(LevelBasedOperationButton.MODIFY_LEVEL_COMPONENT,
-                "Modifying the level for this enchantment requires an infuser with more enchanting power.");
+        translationBuilder.add(MobEffectAmplifierEntry.PYRAMID_LEVELS_KEY, "Pyramid Levels: %s");
+        translationBuilder.add(MobEffectAmplifierEntry.UNLOCK_EFFECT_COMPONENT,
+                "You need to build a larger pyramid with more layers to unlock this effect.");
+        translationBuilder.add(LevelBasedOperationButton.AMPLIFY_EFFECT_COMPONENT,
+                "You need to build a larger pyramid with more layers to further amplify this effect.");
+        translationBuilder.add(LevelBasedOperationButton.MODIFY_EFFECT_COMPONENT,
+                "You need to build a larger pyramid with more layers to modify this effect.");
     }
 
     @Override

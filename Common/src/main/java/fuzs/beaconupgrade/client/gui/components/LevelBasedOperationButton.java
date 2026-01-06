@@ -1,8 +1,8 @@
 package fuzs.beaconupgrade.client.gui.components;
 
 import fuzs.beaconupgrade.BeaconUpgrade;
-import fuzs.beaconupgrade.client.gui.screens.inventory.InfuserScreen;
 import fuzs.beaconupgrade.client.gui.screens.inventory.LevelBasedEntry;
+import fuzs.beaconupgrade.client.gui.screens.inventory.UpgradedBeaconScreen;
 import fuzs.puzzleslib.api.client.gui.v2.tooltip.TooltipBuilder;
 import fuzs.puzzleslib.api.util.v1.CommonHelper;
 import net.minecraft.ChatFormatting;
@@ -15,10 +15,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 
 public abstract class LevelBasedOperationButton extends ImageButton {
-    public static final Component INCREASE_LEVEL_COMPONENT = Component.translatable(Util.makeDescriptionId("gui",
-            BeaconUpgrade.id("mob_effect.tooltip.low_power1"))).withStyle(ChatFormatting.GRAY);
-    public static final Component MODIFY_LEVEL_COMPONENT = Component.translatable(Util.makeDescriptionId("gui",
-            BeaconUpgrade.id("mob_effect.tooltip.low_power2"))).withStyle(ChatFormatting.GRAY);
+    public static final Component AMPLIFY_EFFECT_COMPONENT = Component.translatable(Util.makeDescriptionId("gui",
+            BeaconUpgrade.id("beacon.tooltip.amplify_effect"))).withStyle(ChatFormatting.GRAY);
+    public static final Component MODIFY_EFFECT_COMPONENT = Component.translatable(Util.makeDescriptionId("gui",
+            BeaconUpgrade.id("beacon.tooltip.modify_effect"))).withStyle(ChatFormatting.GRAY);
 
     private final boolean isPowerTooLow;
 
@@ -61,14 +61,14 @@ public abstract class LevelBasedOperationButton extends ImageButton {
         }
 
         if (this.isPowerTooLow && this.isHoveredOrFocused()) {
-            InfuserScreen.setIsPowerTooLow(true);
+            UpgradedBeaconScreen.setIsPowerTooLow(true);
         }
     }
 
     public static class Add extends LevelBasedOperationButton {
 
         public Add(LevelBasedEntry<?> levelBasedEntry, int x, int y, OnPress onPress) {
-            super(levelBasedEntry, x, y, InfuserScreen.ADD_BUTTON_SPRITES, onPress, INCREASE_LEVEL_COMPONENT);
+            super(levelBasedEntry, x, y, UpgradedBeaconScreen.ADD_BUTTON_SPRITES, onPress, AMPLIFY_EFFECT_COMPONENT);
         }
 
         @Override
@@ -90,7 +90,7 @@ public abstract class LevelBasedOperationButton extends ImageButton {
     public static class Remove extends LevelBasedOperationButton {
 
         public Remove(LevelBasedEntry<?> levelBasedEntry, int x, int y, OnPress onPress) {
-            super(levelBasedEntry, x, y, InfuserScreen.REMOVE_BUTTON_SPRITES, onPress, MODIFY_LEVEL_COMPONENT);
+            super(levelBasedEntry, x, y, UpgradedBeaconScreen.REMOVE_BUTTON_SPRITES, onPress, MODIFY_EFFECT_COMPONENT);
         }
 
         @Override

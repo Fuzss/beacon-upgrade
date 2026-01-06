@@ -1,7 +1,7 @@
 package fuzs.beaconupgrade.client;
 
 import fuzs.beaconupgrade.BeaconUpgrade;
-import fuzs.beaconupgrade.client.gui.screens.inventory.InfuserScreen;
+import fuzs.beaconupgrade.client.gui.screens.inventory.UpgradedBeaconScreen;
 import fuzs.beaconupgrade.client.handler.BlockStateTranslator;
 import fuzs.beaconupgrade.handler.BlockConversionHandler;
 import fuzs.beaconupgrade.init.ModRegistry;
@@ -51,7 +51,7 @@ public class BeaconUpgradeClient implements ClientModConstructor {
 
     @Override
     public void onRegisterMenuScreens(MenuScreensContext context) {
-        context.registerMenuScreen(ModRegistry.BEACON_MENU_TYPE.value(), InfuserScreen::new);
+        context.registerMenuScreen(ModRegistry.BEACON_MENU_TYPE.value(), UpgradedBeaconScreen::new);
     }
 
     @Override

@@ -1,7 +1,7 @@
 {
   "values": {
     "#minecraft:copper": {
-      "power_level": {
+      "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
           "type": "minecraft:linear",
@@ -13,7 +13,7 @@
       }
     },
     "minecraft:diamond_block": {
-      "power_level": {
+      "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
           "type": "minecraft:linear",
@@ -25,7 +25,7 @@
       }
     },
     "minecraft:emerald_block": {
-      "power_level": {
+      "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
           "type": "minecraft:linear",
@@ -37,7 +37,7 @@
       }
     },
     "minecraft:gold_block": {
-      "power_level": {
+      "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
           "type": "minecraft:linear",
@@ -49,7 +49,7 @@
       }
     },
     "minecraft:iron_block": {
-      "power_level": {
+      "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
           "type": "minecraft:linear",
@@ -61,7 +61,7 @@
       }
     },
     "minecraft:netherite_block": {
-      "power_level": {
+      "pyramid_level_bonus": {
         "type": "beaconupgrade:clamped",
         "max": {
           "type": "minecraft:linear",

@@ -1,42 +1,42 @@
 {
   "values": {
     "minecraft:copper_ingot": {
-      "duration": {
+      "duration_in_seconds": {
         "type": "minecraft:linear",
         "base": 3.0,
         "per_level_above_first": 1.0
       }
     },
     "minecraft:diamond": {
-      "duration": {
+      "duration_in_seconds": {
         "type": "minecraft:linear",
         "base": 45.0,
         "per_level_above_first": 10.0
       }
     },
     "minecraft:emerald": {
-      "duration": {
+      "duration_in_seconds": {
         "type": "minecraft:linear",
         "base": 25.0,
         "per_level_above_first": 5.0
       }
     },
     "minecraft:gold_ingot": {
-      "duration": {
+      "duration_in_seconds": {
         "type": "minecraft:linear",
         "base": 15.0,
         "per_level_above_first": 3.0
       }
     },
     "minecraft:iron_ingot": {
-      "duration": {
+      "duration_in_seconds": {
         "type": "minecraft:linear",
         "base": 11.0,
         "per_level_above_first": 2.0
       }
     },
     "minecraft:netherite_ingot": {
-      "duration": {
+      "duration_in_seconds": {
         "type": "minecraft:linear",
         "base": 90.0,
         "per_level_above_first": 15.0

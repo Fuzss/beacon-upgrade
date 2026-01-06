@@ -9,23 +9,25 @@ import fuzs.beaconupgrade.client.gui.components.LevelBasedOperationButton;
 import fuzs.beaconupgrade.client.util.MobEffectTooltipHelper;
 import fuzs.beaconupgrade.network.client.ServerboundBeaconEffectsMessage;
 import fuzs.beaconupgrade.world.inventory.UpgradedBeaconMenu;
+import fuzs.beaconupgrade.world.level.block.BeaconBaseBlock;
 import fuzs.beaconupgrade.world.level.block.BeaconLevelEffect;
+import fuzs.beaconupgrade.world.level.block.BeaconPaymentItem;
 import fuzs.beaconupgrade.world.level.block.entity.UpgradedBeaconBlockEntity;
 import fuzs.puzzleslib.api.client.gui.v2.tooltip.ClientComponentSplitter;
 import fuzs.puzzleslib.api.client.gui.v2.tooltip.TooltipBuilder;
-import fuzs.puzzleslib.api.core.v1.ModLoaderEnvironment;
 import fuzs.puzzleslib.api.network.v4.MessageSender;
 import fuzs.puzzleslib.api.util.v1.CommonHelper;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -35,7 +37,6 @@ import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Util;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Inventory;
@@ -45,11 +46,15 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SmithingTemplateItem;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.block.Block;
 
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Random;
 
-public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> implements ContainerListener {
+public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<UpgradedBeaconMenu> implements ContainerListener {
     public static final Identifier TEXTURE_LOCATION = BeaconUpgrade.id("textures/gui/container/beacon.png");
     public static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
     public static final List<Identifier> PYRAMID_LEVEL_SPRITES = List.of(BeaconUpgrade.id("container/beacon/level_1"),
@@ -72,13 +77,15 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
             "container/beacon/add_button"),
             BeaconUpgrade.id("container/beacon/add_button_disabled"),
             BeaconUpgrade.id("container/beacon/add_button_highlighted"));
-    public static final String KEY_TOOLTIP_HINT = Util.makeDescriptionId("gui",
-            BeaconUpgrade.id("infusing.tooltip.enchanting_power_hint"));
     public static final List<Identifier> EMPTY_SLOT_ICONS = List.of(SmithingTemplateItem.EMPTY_SLOT_INGOT,
             SmithingTemplateItem.EMPTY_SLOT_DIAMOND,
             SmithingTemplateItem.EMPTY_SLOT_EMERALD);
     private static final int CONFIRM_BUTTON_OFFSET_X = 7;
     private static final int CONFIRM_BUTTON_OFFSET_Y = 55;
+    private static final int UPDATE_PYRAMID_LEVELS = 1 << 0;
+    private static final int UPDATE_SEARCH_RESULTS = 1 << 1;
+    private static final int UPDATE_CONFIRM_BUTTON = 1 << 2;
+    private static final int UPDATE_MOB_EFFECTS = 1 << 3;
 
     private static boolean isPowerTooLow;
     private final CyclingSlotBackground slotBackground = new CyclingSlotBackground(0);
@@ -88,8 +95,10 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
     private boolean ignoreTextInput;
     private AbstractWidget pyramidLevelsWidget;
     private ImageButton confirmButton;
+    private Object2IntMap<Holder<MobEffect>> mobEffects = Object2IntMaps.emptyMap();
+    private int updateFlags;
 
-    public InfuserScreen(UpgradedBeaconMenu menu, Inventory inventory, Component component) {
+    public UpgradedBeaconScreen(UpgradedBeaconMenu menu, Inventory inventory, Component component) {
         super(menu, inventory, component);
         this.imageWidth = 220;
         this.imageHeight = 185;
@@ -99,18 +108,67 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
     }
 
     public static void setIsPowerTooLow(boolean isPowerTooLow) {
-        InfuserScreen.isPowerTooLow = isPowerTooLow;
+        UpgradedBeaconScreen.isPowerTooLow = isPowerTooLow;
+    }
+
+    private static Identifier getPyramidLevelSprite(int pyramidLevel) {
+        return PYRAMID_LEVEL_SPRITES.get(Math.clamp(pyramidLevel, 0, PYRAMID_LEVEL_SPRITES.size() - 1));
+    }
+
+    protected boolean hasChanged() {
+        return !Objects.equals(this.mobEffects, this.getMenu().packMobEffects());
+    }
+
+    protected void setMobEffectAmplifier(Holder<MobEffect> mobEffect, int amplifier) {
+        UpgradedBeaconBlockEntity.setMobEffectAmplifier(this.mobEffects,
+                this.getMenu().getPyramidLevels(),
+                mobEffect,
+                amplifier);
+        this.addUpdateFlag(UPDATE_SEARCH_RESULTS, UPDATE_CONFIRM_BUTTON);
     }
 
     @Override
     protected void containerTick() {
         super.containerTick();
         this.slotBackground.tick(EMPTY_SLOT_ICONS);
+        if (this.hasUpdateFlag(UPDATE_MOB_EFFECTS)) {
+            this.mobEffects = this.getMenu().packMobEffects();
+            this.removeUpdateFlag(UPDATE_MOB_EFFECTS);
+        }
+
+        if (this.hasUpdateFlag(UPDATE_PYRAMID_LEVELS)) {
+            this.refreshPyramidLevels();
+        }
+
+        if (this.hasUpdateFlag(UPDATE_SEARCH_RESULTS)) {
+            this.refreshSearchResults();
+        }
+
+        if (this.hasUpdateFlag(UPDATE_CONFIRM_BUTTON)) {
+            this.refreshConfirmButton();
+        }
+    }
+
+    protected boolean hasUpdateFlag(int updateFlag) {
+        return (this.updateFlags & updateFlag) != 0;
+    }
+
+    protected void addUpdateFlag(int... updateFlags) {
+        for (int updateFlag : updateFlags) {
+            this.updateFlags |= updateFlag;
+        }
+    }
+
+    protected void removeUpdateFlag(int... updateFlags) {
+        for (int updateFlag : updateFlags) {
+            this.updateFlags &= ~updateFlag;
+        }
     }
 
     @Override
     protected void init() {
         super.init();
+        this.updateFlags = -1;
         this.searchBox = new EditBox(this.font,
                 this.leftPos + 67,
                 this.topPos + 6,
@@ -133,7 +191,8 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
 
             @Override
             public Component getMessage() {
-                if (InfuserScreen.this.getMenu().getPyramidLevels() >= UpgradedBeaconBlockEntity.MAX_PYRAMID_LEVELS) {
+                if (UpgradedBeaconScreen.this.getMenu().getPyramidLevels()
+                        >= UpgradedBeaconBlockEntity.MAX_PYRAMID_LEVELS) {
                     return this.maximumEnchantmentPowerMessage;
                 } else if (isPowerTooLow) {
                     return this.powerIsTooLowMessage;
@@ -158,65 +217,76 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
                 CONFIRM_BUTTON_SPRITES,
                 (Button button) -> {
                     MessageSender.broadcast(new ServerboundBeaconEffectsMessage(this.getMenu().containerId,
-                            this.getMenu().pack()));
+                            this.mobEffects));
                     this.searchBox.setValue("");
+                    this.onClose();
                 }));
-        this.refreshPyramidLevels();
-//        this.refreshButton(InfuserMenu.ENCHANTMENT_POWER_DATA_SLOT);
-//        this.refreshButton(InfuserMenu.ENCHANTING_COST_DATA_SLOT);
     }
 
-    private void refreshButton(int dataSlot) {
-//        switch (dataSlot) {
-//            case InfuserMenu.ENCHANTMENT_POWER_DATA_SLOT ->
-//                    this.refreshPowerLevels(this.getMenu().getEnchantmentPower());
-//            case InfuserMenu.ENCHANTING_COST_DATA_SLOT -> {
-//                this.refreshButton(this.confirmButton,
-//                        this.getMenu().getEnchantingCost(),
-//                        this.getMenu().canEnchant(this.minecraft.player));
-//            }
-//        }
-    }
+    public void refreshConfirmButton() {
+        this.removeUpdateFlag(UPDATE_CONFIRM_BUTTON);
+        ItemStack itemStack = this.getMenu().getSlot(UpgradedBeaconMenu.PAYMENT_SLOT).getItem();
+        this.confirmButton.active = (!itemStack.isEmpty() || this.mobEffects.isEmpty()) && this.hasChanged();
+        if (this.mobEffects.isEmpty()) {
+            this.confirmButton.setTooltip(null);
+        } else {
+            TooltipBuilder tooltipBuilder = TooltipBuilder.create(Items.BEACON.getDefaultInstance()
+                    .getStyledHoverName()).splitLines(200);
+            BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack);
+            int duration = beaconPaymentItem != null ?
+                    beaconPaymentItem.getMobEffectDuration(this.getMenu().getPyramidLevels()) : 0;
+            List<MobEffectInstance> mobEffects = this.mobEffects.object2IntEntrySet()
+                    .stream()
+                    .map((Object2IntMap.Entry<Holder<MobEffect>> entry) -> {
+                        return new MobEffectInstance(entry.getKey(), duration, entry.getIntValue());
+                    })
+                    .sorted()
+                    .toList();
+            PotionContents.addPotionTooltip(mobEffects,
+                    tooltipBuilder::addLines,
+                    1.0F,
+                    this.minecraft.level.tickRateManager().tickrate());
 
-    private void refreshButton(ImageButton button, int value, boolean mayApply) {
-//        button.refreshMessage(value, mayApply);
-//        button.refreshTooltip(this.getMenu().getEnchantableStack(),
-//                this.getMenu().getItemEnchantments(),
-//                value,
-//                mayApply);
-//        button.active = mayApply;
+            tooltipBuilder.build(this.confirmButton);
+        }
     }
 
     private void refreshPyramidLevels() {
+        this.removeUpdateFlag(UPDATE_PYRAMID_LEVELS);
         int pyramidLevels = this.getMenu().getPyramidLevels();
-        Component component = Component.translatable("enchantment.level." + (pyramidLevels + 1));
-        this.pyramidLevelsWidget.setMessage(component);
-        TooltipBuilder builder = TooltipBuilder.create()
-                .splitLines(200)
-                .addLines(Component.translatable(MobEffectAmplifierEntry.KEY_CURRENT_ENCHANTING_POWER, component)
-                        .withStyle(ChatFormatting.GOLD));
-        for (int pyramidLevel = 0; pyramidLevel < pyramidLevels; pyramidLevel++) {
-            Pair<Block, Integer> pyramidLevelPower = this.getMenu().getPyramidLevelPower(pyramidLevel);
-            if (pyramidLevelPower != null) {
-                Block block = pyramidLevelPower.getFirst();
-                Identifier identifier = PYRAMID_LEVEL_SPRITES.get(Math.clamp(pyramidLevel,
-                        0,
-                        PYRAMID_LEVEL_SPRITES.size() - 1));
-                builder.addLines(Component.empty()
-                        .append(Component.object(new AtlasSprite(AtlasIds.GUI, identifier))
-                                .withStyle(ChatFormatting.WHITE))
-                        .append(CommonComponents.SPACE)
-                        .append(block.getName())
-                        .append(CommonComponents.SPACE)
-                        .append(MobEffectTooltipHelper.wrapInRoundBrackets(Component.literal(
-                                "+" + pyramidLevelPower.getSecond())))
-                        .withStyle(ChatFormatting.GRAY));
-            } else {
-                break;
+        if (pyramidLevels <= 0) {
+            this.pyramidLevelsWidget.setMessage(CommonComponents.EMPTY);
+            this.pyramidLevelsWidget.setTooltip(null);
+        } else {
+            Component component = MobEffectTooltipHelper.getEnchantmentLevel(pyramidLevels);
+            this.pyramidLevelsWidget.setMessage(component);
+            TooltipBuilder tooltipBuilder = TooltipBuilder.create()
+                    .splitLines(200)
+                    .addLines(Component.translatable(MobEffectAmplifierEntry.PYRAMID_LEVELS_KEY, component));
+            for (int pyramidLevel = UpgradedBeaconBlockEntity.MIN_PYRAMID_LEVELS;
+                 pyramidLevel <= pyramidLevels; pyramidLevel++) {
+                Pair<Block, BeaconBaseBlock> pyramidLevelPower = this.getMenu().getPyramidLevelPower(pyramidLevel);
+                if (pyramidLevelPower != null) {
+                    Block block = pyramidLevelPower.getFirst();
+                    Identifier identifier = getPyramidLevelSprite(pyramidLevel);
+                    tooltipBuilder.addLines(Component.empty()
+                            .append(Component.object(new AtlasSprite(AtlasIds.GUI, identifier))
+                                    .withStyle(ChatFormatting.WHITE))
+                            .append(CommonComponents.SPACE)
+                            .append(block.getName())
+                            .append(CommonComponents.SPACE)
+                            .append(MobEffectTooltipHelper.wrapInRoundBrackets(Component.literal(
+                                            "+" + pyramidLevelPower.getSecond().getPyramidLevelBonus(pyramidLevel) + "/"
+                                                    + pyramidLevelPower.getSecond().getMaxPyramidLevelBonus()))
+                                    .withColor(block.defaultMapColor().col))
+                            .withStyle(ChatFormatting.GRAY));
+                } else {
+                    break;
+                }
             }
-        }
 
-        builder.build(this.pyramidLevelsWidget);
+            tooltipBuilder.build(this.pyramidLevelsWidget);
+        }
     }
 
     @Override
@@ -262,15 +332,15 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
                 return super.keyPressed(keyEvent);
             }
         } else {
-            boolean flag = this.hoveredSlot != null && this.hoveredSlot.hasItem();
-            boolean flag1 = InputConstants.getKey(keyEvent).getNumericKeyValue().isPresent();
-            if (flag && flag1 && this.checkHotbarKeyPressed(keyEvent)) {
+            boolean isHoveringFilledSlot = this.hoveredSlot != null && this.hoveredSlot.hasItem();
+            boolean isNumericKey = InputConstants.getKey(keyEvent).getNumericKeyValue().isPresent();
+            if (isHoveringFilledSlot && isNumericKey && this.checkHotbarKeyPressed(keyEvent)) {
                 this.ignoreTextInput = true;
                 return true;
             } else {
-                String s = this.searchBox.getValue();
+                String searchQuery = this.searchBox.getValue();
                 if (this.searchBox.keyPressed(keyEvent)) {
-                    if (!Objects.equals(s, this.searchBox.getValue())) {
+                    if (!Objects.equals(searchQuery, this.searchBox.getValue())) {
                         this.refreshSearchResults();
                     }
                     return true;
@@ -289,13 +359,13 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
     }
 
     public void refreshSearchResults() {
+        this.removeUpdateFlag(UPDATE_SEARCH_RESULTS);
         int size = this.scrollingList.children().size();
         this.scrollingList.clearEntries();
-        Collection<? extends Holder<MobEffect>> mobEffects = BeaconLevelEffect.getValidMobEffects();
-        for (Holder<MobEffect> holder : mobEffects) {
+        for (Holder<MobEffect> holder : BeaconLevelEffect.getSortedValidMobEffects()) {
             if (this.matchesSearch(holder)) {
                 LevelBasedEntry<MobEffect> levelBasedEntry = MobEffectAmplifierEntry.create(holder,
-                        this.getMenu().getMobEffectAmplifier(holder),
+                        this.mobEffects.getInt(holder),
                         this.getMenu().getPyramidLevels());
                 this.scrollingList.addEntry(holder, levelBasedEntry);
             }
@@ -334,7 +404,7 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
                 this.imageHeight,
                 256,
                 256);
-        Slot slot = this.getMenu().getSlot(0);
+        Slot slot = this.getMenu().getSlot(UpgradedBeaconMenu.PAYMENT_SLOT);
         guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
                 SLOT_SPRITE,
                 this.leftPos + slot.x - 1,
@@ -345,50 +415,26 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        // AbstractContainerMenu::mouseScrolled does not call super, so this is copied from ContainerEventHandler::mouseScrolled
-        if (this.getChildAt(mouseX, mouseY)
-                .filter(listener -> listener.mouseScrolled(mouseX, mouseY, scrollX, scrollY))
-                .isPresent()) {
-            return true;
-        } else {
-            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
-        }
-    }
-
-    @Override
-    public boolean mouseDragged(MouseButtonEvent mouseButtonEvent, double dragX, double dragY) {
-        // AbstractContainerMenu::mouseDragged does not call super, so this is copied from ContainerEventHandler::mouseDragged
-        // Fabric Api patches that in though so we only need it for NeoForge
-        if (!ModLoaderEnvironment.INSTANCE.getModLoader().isFabricLike()) {
-            if (this.getFocused() != null && this.isDragging()
-                    && mouseButtonEvent.button() == InputConstants.MOUSE_BUTTON_LEFT && this.getFocused()
-                    .mouseDragged(mouseButtonEvent, dragX, dragY)) {
-                return true;
-            }
-        }
-
-        return super.mouseDragged(mouseButtonEvent, dragX, dragY);
-    }
-
-    @Override
     public void slotChanged(AbstractContainerMenu containerMenu, int dataSlotIndex, ItemStack itemStack) {
         if (dataSlotIndex == UpgradedBeaconMenu.PAYMENT_SLOT) {
-            this.refreshButton(0);
+            this.addUpdateFlag(UPDATE_CONFIRM_BUTTON);
         }
     }
 
     @Override
     public void dataChanged(AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {
+        this.addUpdateFlag(UPDATE_SEARCH_RESULTS, UPDATE_CONFIRM_BUTTON);
         if (dataSlotIndex < UpgradedBeaconBlockEntity.LEVELS_DATA_SLOTS) {
-            this.refreshPyramidLevels();
+            this.addUpdateFlag(UPDATE_PYRAMID_LEVELS);
+        } else if (dataSlotIndex < UpgradedBeaconBlockEntity.LEVELS_DATA_SLOTS + BuiltInRegistries.MOB_EFFECT.size()) {
+            this.addUpdateFlag(UPDATE_MOB_EFFECTS);
         }
     }
 
     private class EnchantmentSelectionList extends AbstractMenuSelectionList<EnchantmentSelectionList.Entry> {
 
         public EnchantmentSelectionList(int x, int y) {
-            super(InfuserScreen.this.minecraft, x, y, 160, 70, 18, 8);
+            super(UpgradedBeaconScreen.this.minecraft, x, y, 160, 70, 18, 8);
         }
 
         public void addEntry(Holder<MobEffect> holder, LevelBasedEntry<MobEffect> levelBasedEntry) {
@@ -408,29 +454,33 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
             public Entry(Holder<MobEffect> holder, LevelBasedEntry<MobEffect> levelBasedEntry) {
                 this.levelBasedEntry = levelBasedEntry;
                 this.component = ComponentUtils.mergeStyles(levelBasedEntry.getDisplayName(holder,
-                        EnchantmentSelectionList.this.getWidth() - 18 * 2,
-                        InfuserScreen.this.enchantmentSeed), Style.EMPTY.withColor(ARGB.opaque(this.getFontColor())));
+                                EnchantmentSelectionList.this.getWidth() - 18 * 2,
+                                UpgradedBeaconScreen.this.enchantmentSeed),
+                        Style.EMPTY.withColor(ARGB.opaque(this.getFontColor())));
                 this.tooltip = ClientComponentSplitter.splitTooltipLines(levelBasedEntry.getTooltip(holder)).toList();
                 this.addRenderableWidget(new LevelBasedOperationButton.Remove(levelBasedEntry,
                         EnchantmentSelectionList.this.getX(),
                         EnchantmentSelectionList.this.getY(),
                         (Button button) -> {
-                            int amplifier = InfuserScreen.this.getMenu().getMobEffectAmplifier(holder);
-                            int amplifierDifference = CommonHelper.hasShiftDown() ? MobEffectInstance.MAX_AMPLIFIER : 1;
-                            if (InfuserScreen.this.getMenu()
-                                    .setMobEffectAmplifier(holder, amplifier - amplifierDifference) != amplifier) {
-                                InfuserScreen.this.refreshSearchResults();
+                            int amplifier = UpgradedBeaconScreen.this.mobEffects.getInt(holder);
+                            UpgradedBeaconScreen.this.setMobEffectAmplifier(holder,
+                                    CommonHelper.hasShiftDown() ? UpgradedBeaconBlockEntity.DEFAULT_AMPLIFIER :
+                                            amplifier - 1);
+                            if (UpgradedBeaconScreen.this.mobEffects.getInt(holder) != amplifier) {
+                                UpgradedBeaconScreen.this.refreshSearchResults();
+                                UpgradedBeaconScreen.this.refreshConfirmButton();
                             }
                         }));
                 this.addRenderableWidget(new LevelBasedOperationButton.Add(levelBasedEntry,
                         EnchantmentSelectionList.this.getX() + EnchantmentSelectionList.this.getWidth() - 18,
                         EnchantmentSelectionList.this.getY(),
                         (Button button) -> {
-                            int amplifier = InfuserScreen.this.getMenu().getMobEffectAmplifier(holder);
-                            int amplifierDifference = CommonHelper.hasShiftDown() ? MobEffectInstance.MAX_AMPLIFIER : 1;
-                            if (InfuserScreen.this.getMenu()
-                                    .setMobEffectAmplifier(holder, amplifier + amplifierDifference) != amplifier) {
-                                InfuserScreen.this.refreshSearchResults();
+                            int amplifier = UpgradedBeaconScreen.this.mobEffects.getInt(holder);
+                            UpgradedBeaconScreen.this.setMobEffectAmplifier(holder,
+                                    CommonHelper.hasShiftDown() ? MobEffectInstance.MAX_AMPLIFIER : amplifier + 1);
+                            if (UpgradedBeaconScreen.this.mobEffects.getInt(holder) != amplifier) {
+                                UpgradedBeaconScreen.this.refreshSearchResults();
+                                UpgradedBeaconScreen.this.refreshConfirmButton();
                             }
                         }));
             }
@@ -456,7 +506,7 @@ public class InfuserScreen extends AbstractContainerScreen<UpgradedBeaconMenu> i
                         || mouseX >= this.getContentX() + 18 && mouseX < this.getContentRight() - 18)) {
                     guiGraphics.setTooltipForNextFrame(this.tooltip, mouseX, mouseY);
                     if (this.levelBasedEntry.isNotAvailable()) {
-                        InfuserScreen.setIsPowerTooLow(true);
+                        UpgradedBeaconScreen.setIsPowerTooLow(true);
                     }
                 }
             }

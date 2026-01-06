@@ -7,15 +7,17 @@ import fuzs.beaconupgrade.world.level.block.BeaconLevelEffect;
 import fuzs.beaconupgrade.world.level.block.BeaconPaymentItem;
 import fuzs.beaconupgrade.world.level.block.entity.UpgradedBeaconBlockEntity;
 import fuzs.puzzleslib.api.container.v1.QuickMoveRuleSet;
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +25,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jspecify.annotations.Nullable;
 
@@ -31,7 +34,13 @@ import java.util.Optional;
 public class UpgradedBeaconMenu extends AbstractContainerMenu {
     public static final int PAYMENT_SLOT = 0;
 
-    private final Container container = new SimpleContainer(1);
+    private final Container container = new SimpleContainer(1) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            UpgradedBeaconMenu.this.slotsChanged(this);
+        }
+    };
     private final ContainerData pyramidLevelsData;
     private final ContainerData mobEffectsData;
     private final ContainerLevelAccess levelAccess;
@@ -118,8 +127,14 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public void setData(int id, int data) {
-        super.setData(id, data);
+    public void setItem(int slotId, int stateId, ItemStack itemStack) {
+        super.setItem(slotId, stateId, itemStack);
+        this.broadcastChanges();
+    }
+
+    @Override
+    public void setData(int slotId, int data) {
+        super.setData(slotId, data);
         this.broadcastChanges();
     }
 
@@ -131,25 +146,42 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
         });
     }
 
+    public void updateEffects(Object2IntMap<Holder<MobEffect>> mobEffects) {
+        this.levelAccess.execute((Level level, BlockPos blockPos) -> {
+            this.updateEffects(level, blockPos, mobEffects);
+        });
+    }
+
     /**
      * @see BeaconMenu#updateEffects(Optional, Optional)
      */
-    public void updateEffects(Object2IntMap<Holder<MobEffect>> mobEffects) {
-        if (!this.container.getItem(PAYMENT_SLOT).isEmpty()) {
-            this.container.removeItem(PAYMENT_SLOT, 1);
-            for (Object2IntMap.Entry<Holder<MobEffect>> entry : mobEffects.object2IntEntrySet()) {
-                this.setMobEffectAmplifier(entry.getKey(), entry.getIntValue());
+    private void updateEffects(Level level, BlockPos blockPos, Object2IntMap<Holder<MobEffect>> mobEffects) {
+        if (!this.container.getItem(PAYMENT_SLOT).isEmpty() || mobEffects.isEmpty()) {
+            if (!mobEffects.isEmpty()) {
+                this.container.removeItem(PAYMENT_SLOT, 1);
             }
 
-            this.levelAccess.execute(Level::blockEntityChanged);
+            for (Holder<MobEffect> mobEffect : BeaconLevelEffect.getValidMobEffects()) {
+                this.setMobEffectAmplifier(mobEffect,
+                        mobEffects.getOrDefault(mobEffect, UpgradedBeaconBlockEntity.DEFAULT_AMPLIFIER));
+            }
+
+            level.blockEntityChanged(blockPos);
+            level.getBlockEntity(blockPos, ModRegistry.BEACON_BLOCK_ENTITY_TYPE.value())
+                    .ifPresent((UpgradedBeaconBlockEntity blockEntity) -> {
+                        if (!blockEntity.getBeamSections().isEmpty()) {
+                            BeaconBlockEntity.playSound(level, blockPos, SoundEvents.BEACON_POWER_SELECT);
+                        }
+                    });
         }
     }
 
-    public Object2IntMap<Holder<MobEffect>> pack() {
-        Object2IntMap<Holder<MobEffect>> mobEffects = new Object2IntArrayMap<>();
+    public Object2IntMap<Holder<MobEffect>> packMobEffects() {
+        Object2IntMap<Holder<MobEffect>> mobEffects = new Object2IntOpenHashMap<>();
+        mobEffects.defaultReturnValue(UpgradedBeaconBlockEntity.DEFAULT_AMPLIFIER);
         for (Holder<MobEffect> mobEffect : BeaconLevelEffect.getValidMobEffects()) {
             int amplifier = this.getMobEffectAmplifier(mobEffect);
-            if (amplifier >= 0) {
+            if (amplifier >= MobEffectInstance.MIN_AMPLIFIER) {
                 mobEffects.put(mobEffect, amplifier);
             }
         }
@@ -157,19 +189,12 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
         return mobEffects;
     }
 
-    public int getMobEffectAmplifier(Holder<MobEffect> mobEffect) {
+    private int getMobEffectAmplifier(Holder<MobEffect> mobEffect) {
         return this.mobEffectsData.get(BuiltInRegistries.MOB_EFFECT.getIdOrThrow(mobEffect.value()));
     }
 
-    public int setMobEffectAmplifier(Holder<MobEffect> mobEffect, int amplifier) {
-        int oldAmplifier = this.getMobEffectAmplifier(mobEffect);
-        if (oldAmplifier != amplifier) {
-            int newAmplifier = Math.clamp(amplifier, -1, BeaconLevelEffect.getMaxAmplifier(mobEffect));
-            this.mobEffectsData.set(BuiltInRegistries.MOB_EFFECT.getIdOrThrow(mobEffect.value()), newAmplifier);
-            return newAmplifier;
-        } else {
-            return oldAmplifier;
-        }
+    private void setMobEffectAmplifier(Holder<MobEffect> mobEffect, int amplifier) {
+        this.mobEffectsData.set(BuiltInRegistries.MOB_EFFECT.getIdOrThrow(mobEffect.value()), amplifier);
     }
 
     public int getPyramidLevels() {
@@ -180,10 +205,10 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
         return this.pyramidLevelsData.get(UpgradedBeaconBlockEntity.ALL_POWER_LEVELS_DATA_SLOT);
     }
 
-    public @Nullable Pair<Block, Integer> getPyramidLevelPower(int pyramidLevel) {
-        int blockId = this.pyramidLevelsData.get(UpgradedBeaconBlockEntity.EXTRA_LEVELS_DATA_SLOTS + pyramidLevel);
+    public @Nullable Pair<Block, BeaconBaseBlock> getPyramidLevelPower(int pyramidLevel) {
+        int blockId = this.pyramidLevelsData.get(UpgradedBeaconBlockEntity.EXTRA_LEVELS_DATA_SLOTS + pyramidLevel - 1);
         Block block = BuiltInRegistries.BLOCK.byId(blockId);
         BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(block.defaultBlockState());
-        return beaconBaseBlock != null ? Pair.of(block, beaconBaseBlock.getPowerLevel(pyramidLevel)) : null;
+        return beaconBaseBlock != null ? Pair.of(block, beaconBaseBlock) : null;
     }
 }
