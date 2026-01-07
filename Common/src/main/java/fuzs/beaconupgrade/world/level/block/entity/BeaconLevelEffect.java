@@ -16,22 +16,26 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 
-public record BeaconLevelEffect(LevelBasedValue maxAmplifier, LevelBasedValue costPerAmplifier) {
+public record BeaconLevelEffect(LevelBasedValue maxAmplifier, LevelBasedValue strengthPerAmplifier) {
     public static final Codec<BeaconLevelEffect> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     LevelBasedValue.CODEC.fieldOf("max_amplifier").forGetter(BeaconLevelEffect::maxAmplifier),
-                    LevelBasedValue.CODEC.fieldOf("cost_per_amplifier").forGetter(BeaconLevelEffect::costPerAmplifier))
+                    LevelBasedValue.CODEC.fieldOf("strength_per_amplifier").forGetter(BeaconLevelEffect::strengthPerAmplifier))
             .apply(instance, BeaconLevelEffect::new));
     public static final BeaconLevelEffect DEFAULT = new BeaconLevelEffect(LevelBasedValue.constant(
             UpgradedBeaconBlockEntity.DEFAULT_AMPLIFIER), LevelBasedValue.perLevel(0.0F));
 
     public BeaconLevelEffect(int minLevels) {
-        this(LevelBasedValue.perLevel(1.0F - minLevels, 1.0F), LevelBasedValue.perLevel(minLevels));
+        this(minLevels, minLevels);
     }
 
-    public BeaconLevelEffect(int minLevels, int maxAmplifier) {
+    public BeaconLevelEffect(int minLevels, int costPerAmplifier) {
+        this(LevelBasedValue.perLevel(1.0F - minLevels, 1.0F), LevelBasedValue.perLevel(costPerAmplifier));
+    }
+
+    public BeaconLevelEffect(int minLevels, int maxAmplifier, int costPerAmplifier) {
         this(new ClampedLevelBasedValue(LevelBasedValue.perLevel(1.0F - minLevels, 1.0F),
                 LevelBasedValue.constant(-1.0F),
-                LevelBasedValue.constant(maxAmplifier)), LevelBasedValue.perLevel(minLevels));
+                LevelBasedValue.constant(maxAmplifier)), LevelBasedValue.perLevel(costPerAmplifier));
     }
 
     public int getMaxAmplifier() {
@@ -57,6 +61,10 @@ public record BeaconLevelEffect(LevelBasedValue maxAmplifier, LevelBasedValue co
         }
 
         return -1;
+    }
+
+    public int getStrengthPerAmplifier(int amplifier) {
+        return Math.round(this.strengthPerAmplifier.calculate(amplifier + 1));
     }
 
     public static BeaconLevelEffect get(Holder<MobEffect> mobEffect) {

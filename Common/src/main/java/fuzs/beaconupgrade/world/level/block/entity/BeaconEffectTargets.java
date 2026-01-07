@@ -4,12 +4,18 @@ import com.mojang.serialization.Codec;
 import fuzs.beaconupgrade.BeaconUpgrade;
 import fuzs.beaconupgrade.init.ModRegistry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.Util;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.golem.AbstractGolem;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Locale;
@@ -17,25 +23,28 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 public enum BeaconEffectTargets implements Predicate<LivingEntity>, StringRepresentable {
-    PLAYERS {
+    PLAYERS(ModRegistry.PLAYER_BEACON_TARGETS_ENTITY_TAG) {
         @Override
-        public boolean test(LivingEntity livingEntity) {
-            return livingEntity instanceof Player || livingEntity.getType()
-                    .is(ModRegistry.PLAYER_BEACON_TARGETS_ENTITY_TAG);
+        public boolean isEffectTarget(LivingEntity livingEntity) {
+            return livingEntity instanceof Player;
         }
     },
-    PETS {
+    PETS(ModRegistry.PET_BEACON_TARGETS_ENTITY_TAG) {
         @Override
-        public boolean test(LivingEntity livingEntity) {
-            return livingEntity instanceof OwnableEntity ownableEntity && ownableEntity.getOwnerReference() != null
-                    || livingEntity.getType().is(ModRegistry.PET_BEACON_TARGETS_ENTITY_TAG);
+        public boolean isEffectTarget(LivingEntity livingEntity) {
+            return livingEntity instanceof OwnableEntity ownableEntity && ownableEntity.getOwnerReference() != null;
         }
     },
-    GOLEMS {
+    FRIENDS(ModRegistry.FRIEND_BEACON_TARGETS_ENTITY_TAG) {
         @Override
-        public boolean test(LivingEntity livingEntity) {
-            return livingEntity instanceof AbstractGolem || livingEntity.getType()
-                    .is(ModRegistry.GOLEM_BEACON_TARGETS_ENTITY_TAG);
+        public boolean isEffectTarget(LivingEntity livingEntity) {
+            return livingEntity instanceof AbstractGolem || livingEntity instanceof AbstractVillager;
+        }
+    },
+    ANIMALS(ModRegistry.ANIMAL_BEACON_TARGETS_ENTITY_TAG) {
+        @Override
+        public boolean isEffectTarget(LivingEntity livingEntity) {
+            return livingEntity instanceof Animal;
         }
     };
 
@@ -44,11 +53,34 @@ public enum BeaconEffectTargets implements Predicate<LivingEntity>, StringRepres
             values(),
             ByIdMap.OutOfBoundsStrategy.WRAP);
 
+    private final TagKey<EntityType<?>> tagKey;
     public final Component component;
 
-    BeaconEffectTargets() {
+    BeaconEffectTargets(TagKey<EntityType<?>> tagKey) {
+        this.tagKey = tagKey;
         this.component = Component.translatable(Util.makeDescriptionId("gui",
                 BeaconUpgrade.id("beacon.tooltip." + this.getSerializedName())));
+    }
+
+    @Override
+    public boolean test(LivingEntity livingEntity) {
+        if (livingEntity.getType().is(this.tagKey)) {
+            return true;
+        } else {
+            return this.isEffectTarget(livingEntity) && !this.isNeverEffectTarget(livingEntity);
+        }
+    }
+
+    abstract boolean isEffectTarget(LivingEntity livingEntity);
+
+    private boolean isNeverEffectTarget(LivingEntity livingEntity) {
+        if (livingEntity instanceof Enemy) {
+            return true;
+        } else if (livingEntity instanceof NeutralMob neutralMob) {
+            return neutralMob.getTarget() instanceof Player || neutralMob.getLastHurtByMob() instanceof Player;
+        } else {
+            return false;
+        }
     }
 
     @Override

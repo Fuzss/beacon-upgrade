@@ -56,7 +56,7 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
      */
     public static final int MAX_PYRAMID_LEVELS = 5;
     public static final int PYRAMID_LEVELS_DATA_SLOT = 0;
-    public static final int ALL_POWER_LEVELS_DATA_SLOT = 1;
+    public static final int PYRAMID_STRENGTH_DATA_SLOT = 1;
     public static final int PAYMENT_ITEM_DATA_SLOT = 2;
     public static final int EFFECT_TARGETS_DATA_SLOT = 3;
     public static final int CONTAINER_DATA_SLOTS = 4;
@@ -94,8 +94,8 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
                 case PYRAMID_LEVELS_DATA_SLOT -> {
                     return UpgradedBeaconBlockEntity.this.getPyramidLevels();
                 }
-                case ALL_POWER_LEVELS_DATA_SLOT -> {
-                    return UpgradedBeaconBlockEntity.this.getAllPowerLevels();
+                case PYRAMID_STRENGTH_DATA_SLOT -> {
+                    return UpgradedBeaconBlockEntity.this.getPyramidStrength();
                 }
                 case PAYMENT_ITEM_DATA_SLOT -> {
                     if (UpgradedBeaconBlockEntity.this.paymentItem != null) {
@@ -185,7 +185,7 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
     };
     /**
      * The stored integers represent the numeric block ids (via {@link net.minecraft.core.IdMap#getId(Object)}) for the
-     * block on that layer with the lowest value returned from {@link BeaconBaseBlock#getMaxPyramidLevelBonus()}.
+     * block on that layer with the lowest value returned from {@link BeaconBaseBlock#getMaxPyramidStrength()}.
      *
      * @see #getPyramidLevels(Level, BlockPos)
      */
@@ -207,8 +207,16 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
         return this.pyramidLevels.size();
     }
 
-    public int getAllPowerLevels() {
-        return 0;
+    public int getPyramidStrength() {
+        int pyramidLevelBonus = 0;
+        for (int pyramidLevel = 0; pyramidLevel < this.pyramidLevels.size(); pyramidLevel++) {
+            BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(this.pyramidLevels.get(pyramidLevel));
+            if (beaconBaseBlock != null) {
+                pyramidLevelBonus += beaconBaseBlock.getPyramidStrength(pyramidLevel + 1);
+            }
+        }
+
+        return pyramidLevelBonus;
     }
 
     private void setMobEffectAmplifier(Holder<MobEffect> mobEffect, int amplifier) {
@@ -264,7 +272,7 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
                     if (minBonusHolder == null || !blockState.is(minBonusHolder)) {
                         BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(blockState.getBlockHolder());
                         if (beaconBaseBlock != null) {
-                            int maxBonus = beaconBaseBlock.getMaxPyramidLevelBonus();
+                            int maxBonus = beaconBaseBlock.getMaxPyramidStrength();
                             if (maxBonus < minBonus) {
                                 minBonus = maxBonus;
                                 minBonusHolder = blockState.getBlockHolder();
@@ -292,7 +300,7 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
     private void applyEffects(ServerLevel serverLevel, BlockPos blockPos) {
         BeaconPaymentItem beaconPaymentItem = this.paymentItem != null ? BeaconPaymentItem.get(this.paymentItem) : null;
         if (beaconPaymentItem != null && !this.mobEffects.isEmpty()) {
-            int duration = beaconPaymentItem.getMobEffectDuration(this.getPyramidLevels());
+            int duration = beaconPaymentItem.getDuration(this.getPyramidLevels());
             for (LivingEntity livingEntity : this.getEffectTargets(serverLevel, blockPos)) {
                 for (Object2IntMap.Entry<Holder<MobEffect>> entry : this.mobEffects.object2IntEntrySet()) {
                     livingEntity.addEffect(new MobEffectInstance(entry.getKey(),
@@ -316,7 +324,7 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
         for (int pyramidLevel = 0; pyramidLevel < this.pyramidLevels.size(); pyramidLevel++) {
             BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(this.pyramidLevels.get(pyramidLevel));
             if (beaconBaseBlock != null) {
-                effectiveRadius += beaconBaseBlock.getEffectiveRadiusAtLevel(pyramidLevel + 1);
+                effectiveRadius += beaconBaseBlock.getEffectiveRadius(pyramidLevel + 1);
             }
         }
 

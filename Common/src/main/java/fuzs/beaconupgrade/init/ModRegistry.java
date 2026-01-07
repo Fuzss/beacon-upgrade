@@ -63,8 +63,9 @@ public class ModRegistry {
     public static final Holder.Reference<MobEffect> FLIGHT_MOB_EFFECT = REGISTRIES.whenOnFabricLike()
             .registerMobEffect("flight", () -> new MobEffect(MobEffectCategory.BENEFICIAL, 0xB8F2FF) {
                 @Override
-                public void onEffectAdded(LivingEntity livingEntity, int amplifier) {
-                    super.onEffectAdded(livingEntity, amplifier);
+                public void onEffectStarted(LivingEntity livingEntity, int amplifier) {
+                    // TODO this does not apply when relogging, use Mixin or custom attribute like NeoForge instead
+                    super.onEffectStarted(livingEntity, amplifier);
                     if (livingEntity instanceof Player player && !player.getAbilities().mayfly) {
                         player.getAbilities().mayfly = true;
                         player.onUpdateAbilities();
@@ -78,8 +79,10 @@ public class ModRegistry {
             "player_beacon_targets");
     public static final TagKey<EntityType<?>> PET_BEACON_TARGETS_ENTITY_TAG = TAGS.registerEntityTypeTag(
             "pet_beacon_targets");
-    public static final TagKey<EntityType<?>> GOLEM_BEACON_TARGETS_ENTITY_TAG = TAGS.registerEntityTypeTag(
-            "golem_beacon_targets");
+    public static final TagKey<EntityType<?>> FRIEND_BEACON_TARGETS_ENTITY_TAG = TAGS.registerEntityTypeTag(
+            "friend_beacon_targets");
+    public static final TagKey<EntityType<?>> ANIMAL_BEACON_TARGETS_ENTITY_TAG = TAGS.registerEntityTypeTag(
+            "animal_beacon_targets");
 
     public static final DataMapToken<Block, BeaconBaseBlock> BEACON_BASE_BLOCKS_DATA_MAP_TYPE = DataMapRegistrar.register(
             BeaconUpgrade.id("beacon_base_blocks"),

@@ -17,6 +17,7 @@ public class ModEntityTypeTagsProvider extends AbstractTagProvider<EntityType<?>
     public void addTags(HolderLookup.Provider provider) {
         this.tag(ModRegistry.PLAYER_BEACON_TARGETS_ENTITY_TAG);
         this.tag(ModRegistry.PET_BEACON_TARGETS_ENTITY_TAG);
-        this.tag(ModRegistry.GOLEM_BEACON_TARGETS_ENTITY_TAG).add(EntityType.ALLAY);
+        this.tag(ModRegistry.FRIEND_BEACON_TARGETS_ENTITY_TAG).add(EntityType.ALLAY);
+        this.tag(ModRegistry.ANIMAL_BEACON_TARGETS_ENTITY_TAG);
     }
 }

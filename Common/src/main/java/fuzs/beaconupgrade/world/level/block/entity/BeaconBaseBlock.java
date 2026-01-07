@@ -2,48 +2,85 @@ package fuzs.beaconupgrade.world.level.block.entity;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fuzs.beaconupgrade.BeaconUpgrade;
 import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.beaconupgrade.world.item.enchantment.ClampedLevelBasedValue;
 import fuzs.neoforgedatapackextensions.api.v2.DataMapLookup;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Util;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.block.Block;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.jspecify.annotations.Nullable;
 
-public record BeaconBaseBlock(LevelBasedValue pyramidLevelBonus, LevelBasedValue effectiveRadius) {
+import java.util.List;
+import java.util.function.Consumer;
+
+public record BeaconBaseBlock(LevelBasedValue pyramidStrength,
+                              LevelBasedValue effectiveRadius) implements BeaconTooltipProvider {
     public static final Codec<BeaconBaseBlock> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    LevelBasedValue.CODEC.fieldOf("pyramid_level_bonus").forGetter(BeaconBaseBlock::pyramidLevelBonus),
+                    LevelBasedValue.CODEC.fieldOf("pyramid_strength").forGetter(BeaconBaseBlock::pyramidStrength),
                     LevelBasedValue.CODEC.fieldOf("effective_radius").forGetter(BeaconBaseBlock::effectiveRadius))
             .apply(instance, BeaconBaseBlock::new));
     public static final BeaconBaseBlock DEFAULT = new BeaconBaseBlock(1, 10);
+    public static final Component PYRAMID_STRENGTH_COMPONENT = Component.translatable(Util.makeDescriptionId("gui",
+            BeaconUpgrade.id("beacon.tooltip.pyramid_strength")));
+    public static final String PYRAMID_STRENGTH_POTENTIAL_KEY = Util.makeDescriptionId("gui",
+            BeaconUpgrade.id("beacon.tooltip.pyramid_strength_potential"));
+    public static final String PYRAMID_STRENGTH_REQUIREMENT_KEY = Util.makeDescriptionId("gui",
+            BeaconUpgrade.id("beacon.tooltip.pyramid_strength_requirement"));
+    public static final Component PYRAMID_STRENGTH_DESCRIPTION_COMPONENT = Component.translatable(Util.makeDescriptionId(
+            "gui",
+            BeaconUpgrade.id("beacon.tooltip.pyramid_strength_description"))).withStyle(ChatFormatting.GRAY);
+    public static final Component EFFECTIVE_RADIUS_COMPONENT = Component.translatable(Util.makeDescriptionId("gui",
+            BeaconUpgrade.id("beacon.tooltip.effective_radius")));
 
-    public BeaconBaseBlock(int pyramidLevelBonus, int effectiveRadius) {
-        this(new ClampedLevelBasedValue(LevelBasedValue.constant(pyramidLevelBonus),
-                LevelBasedValue.constant(0.0F),
-                LevelBasedValue.perLevel(1.0F)), LevelBasedValue.perLevel(effectiveRadius * 2.0F, effectiveRadius));
+    public BeaconBaseBlock(int pyramidStrength, int effectiveRadius) {
+        this(new ClampedLevelBasedValue(LevelBasedValue.constant(pyramidStrength),
+                        LevelBasedValue.constant(0.0F),
+                        LevelBasedValue.perLevel(1.0F)),
+                LevelBasedValue.lookup(List.of(effectiveRadius * 2.0F), LevelBasedValue.constant(effectiveRadius)));
     }
 
-    public int getMaxPyramidLevelBonus() {
-        return this.getPyramidLevelBonus(UpgradedBeaconBlockEntity.MAX_PYRAMID_LEVELS);
+    public int getMaxPyramidStrength() {
+        return this.getPyramidStrength(UpgradedBeaconBlockEntity.MAX_PYRAMID_LEVELS);
     }
 
-    public int getPyramidLevelBonus(int pyramidLevels) {
-        return Math.round(this.pyramidLevelBonus.calculate(pyramidLevels));
+    public int getPyramidStrength(int pyramidLevels) {
+        return Math.round(this.pyramidStrength.calculate(pyramidLevels));
     }
 
     public int getEffectiveRadius(int pyramidLevels) {
         return Math.round(this.effectiveRadius.calculate(pyramidLevels));
     }
 
-    public int getEffectiveRadiusAtLevel(int pyramidLevel) {
-        // LevelBasedValue returns a sum including all lower levels; we only want a particular level.
-        if (pyramidLevel > UpgradedBeaconBlockEntity.MIN_PYRAMID_LEVELS) {
-            return this.getEffectiveRadius(pyramidLevel) - this.getEffectiveRadius(pyramidLevel - 1);
+    @Override
+    public void addToTooltip(int pyramidLevels, Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
+        int pyramidStrength = this.getPyramidStrength(pyramidLevels);
+        if (pyramidStrength > 0) {
+            Component component = this.getPyramidStrengthComponent(pyramidStrength);
+            tooltipAdder.accept(BeaconTooltipProvider.getAttributeModifierComponent(pyramidStrength, component));
+        }
+
+        int effectiveRadius = this.getEffectiveRadius(pyramidLevels);
+        if (effectiveRadius > 0) {
+            tooltipAdder.accept(BeaconTooltipProvider.getAttributeModifierComponent(effectiveRadius,
+                    EFFECTIVE_RADIUS_COMPONENT));
+        }
+    }
+
+    private Component getPyramidStrengthComponent(int pyramidStrength) {
+        int maxPyramidStrength = this.getMaxPyramidStrength();
+        if (maxPyramidStrength > pyramidStrength) {
+            return Component.translatable(PYRAMID_STRENGTH_POTENTIAL_KEY,
+                    PYRAMID_STRENGTH_COMPONENT,
+                    pyramidStrength,
+                    maxPyramidStrength);
         } else {
-            return this.getEffectiveRadius(pyramidLevel);
+            return PYRAMID_STRENGTH_COMPONENT;
         }
     }
 
@@ -56,23 +93,5 @@ public record BeaconBaseBlock(LevelBasedValue pyramidLevelBonus, LevelBasedValue
         } else {
             return null;
         }
-    }
-
-    public static int getMaxPowerLevels() {
-        int maxPowerLevels = 0;
-        for (MutableInt levels = new MutableInt(UpgradedBeaconBlockEntity.MIN_PYRAMID_LEVELS);
-             levels.intValue() <= UpgradedBeaconBlockEntity.MAX_PYRAMID_LEVELS; levels.increment()) {
-            maxPowerLevels += DataMapLookup.getDataMap(BuiltInRegistries.BLOCK,
-                            ModRegistry.BEACON_BASE_BLOCKS_DATA_MAP_TYPE)
-                    .values()
-                    .stream()
-                    .mapToInt((BeaconBaseBlock beaconBaseBlock) -> {
-                        return beaconBaseBlock.getPyramidLevelBonus(levels.intValue());
-                    })
-                    .max()
-                    .orElse(0);
-        }
-
-        return maxPowerLevels;
     }
 }

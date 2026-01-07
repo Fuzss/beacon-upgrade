@@ -64,7 +64,7 @@ public class BeaconUpgradeClient implements ClientModConstructor {
 
     @Override
     public void onRegisterBlockRenderTypes(RenderTypesContext<Block> context) {
-        // this runs deferred by default, so we should have all entries from other mods available to us
+        // This runs deferred by default, so we should have all entries from other mods available to us.
         for (Map.Entry<Block, Block> entry : BlockConversionHandler.getBlockConversions().entrySet()) {
             context.registerChunkRenderType(entry.getValue(), context.getChunkRenderType(entry.getKey()));
         }

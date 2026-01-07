@@ -44,16 +44,16 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(Items.NETHERITE_INGOT.builtInRegistryHolder(), new BeaconPaymentItem(90, 15), false);
         this.builder(NeoForgeDataMapToken.unwrap(ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE))
                 .add(MobEffects.SPEED, new BeaconLevelEffect(1), false)
-                .add(MobEffects.HASTE, new BeaconLevelEffect(1, 4), false)
-                .add(ModRegistry.REACH_MOB_EFFECT, new BeaconLevelEffect(1), false)
-                .add(MobEffects.RESISTANCE, new BeaconLevelEffect(2, 4), false)
+                .add(MobEffects.HASTE, new BeaconLevelEffect(1, 4, 1), false)
+                .add(ModRegistry.REACH_MOB_EFFECT, new BeaconLevelEffect(1, 2), false)
+                .add(MobEffects.RESISTANCE, new BeaconLevelEffect(2, 4, 2), false)
                 .add(MobEffects.JUMP_BOOST, new BeaconLevelEffect(2), false)
-                .add(MobEffects.REGENERATION, new BeaconLevelEffect(2, 2), false)
-                .add(MobEffects.STRENGTH, new BeaconLevelEffect(3, 4), false)
+                .add(MobEffects.REGENERATION, new BeaconLevelEffect(2, 2, 4), false)
+                .add(MobEffects.STRENGTH, new BeaconLevelEffect(3, 4, 3), false)
                 .add(MobEffects.FIRE_RESISTANCE, new BeaconLevelEffect(3), false)
-                .add(ModRegistry.NUTRITION_MOB_EFFECT, new BeaconLevelEffect(3, 4), false)
-                .add(ModRegistry.BANE_OF_RAIDERS_MOB_EFFECT, new BeaconLevelEffect(4, 0), false)
-                .add(ModRegistry.BANE_OF_PHANTOMS_MOB_EFFECT, new BeaconLevelEffect(4, 0), false)
-                .add(ModRegistry.FLIGHT_MOB_EFFECT, new BeaconLevelEffect(5, 0), false);
+                .add(ModRegistry.NUTRITION_MOB_EFFECT, new BeaconLevelEffect(3, 4, 4), false)
+                .add(ModRegistry.BANE_OF_RAIDERS_MOB_EFFECT, new BeaconLevelEffect(4, 0, 4), false)
+                .add(ModRegistry.BANE_OF_PHANTOMS_MOB_EFFECT, new BeaconLevelEffect(4, 0, 4), false)
+                .add(ModRegistry.FLIGHT_MOB_EFFECT, new BeaconLevelEffect(5, 0, 10), false);
     }
 }

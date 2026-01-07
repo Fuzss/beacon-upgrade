@@ -20,6 +20,8 @@ public record MobEffectAmplifierEntry(int amplifier,
                                       int minPyramidLevels) implements LevelBasedEntry<MobEffect> {
     public static final String PYRAMID_LEVELS_KEY = Util.makeDescriptionId("gui",
             BeaconUpgrade.id("beacon.tooltip.pyramid_levels"));
+    public static final String PYRAMID_LEVELS_FRACTION_KEY = Util.makeDescriptionId("gui",
+            BeaconUpgrade.id("beacon.tooltip.pyramid_levels_fraction"));
     public static final Component UNLOCK_EFFECT_COMPONENT = Component.translatable(Util.makeDescriptionId("gui",
             BeaconUpgrade.id("beacon.tooltip.unlock_effect"))).withStyle(ChatFormatting.GRAY);
 
@@ -73,11 +75,11 @@ public record MobEffectAmplifierEntry(int amplifier,
     public List<Component> getWeakPowerTooltip(Component component) {
         List<Component> tooltipLines = new ArrayList<>();
         if (this.pyramidLevels > 0 && this.minPyramidLevels > 0) {
-            Component currentPowerComponent = MobEffectTooltipHelper.getEnchantmentLevel(this.pyramidLevels)
-                    .withStyle(ChatFormatting.RED);
-            Component requiredPowerComponent = MobEffectTooltipHelper.getEnchantmentLevel(this.minPyramidLevels);
-            tooltipLines.add(Component.translatable(PYRAMID_LEVELS_KEY,
-                    Component.empty().append(currentPowerComponent).append(" / ").append(requiredPowerComponent)));
+            Component pyramidLevelsComponent = MobEffectTooltipHelper.getEnchantmentLevel(this.pyramidLevels);
+            Component minPyramidLevelsComponent = MobEffectTooltipHelper.getEnchantmentLevel(this.minPyramidLevels);
+            tooltipLines.add(Component.translatable(PYRAMID_LEVELS_FRACTION_KEY,
+                    pyramidLevelsComponent,
+                    minPyramidLevelsComponent).withStyle(ChatFormatting.RED));
         }
 
         tooltipLines.add(component);

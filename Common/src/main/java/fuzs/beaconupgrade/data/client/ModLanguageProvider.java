@@ -4,7 +4,9 @@ import fuzs.beaconupgrade.client.gui.components.LevelBasedOperationButton;
 import fuzs.beaconupgrade.client.gui.screens.inventory.MobEffectAmplifierEntry;
 import fuzs.beaconupgrade.client.gui.screens.inventory.UpgradedBeaconScreen;
 import fuzs.beaconupgrade.init.ModRegistry;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconBaseBlock;
 import fuzs.beaconupgrade.world.level.block.entity.BeaconEffectTargets;
+import fuzs.beaconupgrade.world.level.block.entity.BeaconPaymentItem;
 import fuzs.puzzleslib.api.client.data.v2.AbstractLanguageProvider;
 import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
 import net.minecraft.core.Holder;
@@ -25,17 +27,25 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
         translationBuilder.addMobEffect(ModRegistry.BANE_OF_TRADERS_MOB_EFFECT, "Bane of Traders");
         translationBuilder.addMobEffect(ModRegistry.FLIGHT_MOB_EFFECT, "Flight");
         translationBuilder.add(MobEffectAmplifierEntry.PYRAMID_LEVELS_KEY, "Pyramid Levels: %s");
+        translationBuilder.add(MobEffectAmplifierEntry.PYRAMID_LEVELS_FRACTION_KEY, "Pyramid Levels: %s / %s");
         translationBuilder.add(MobEffectAmplifierEntry.UNLOCK_EFFECT_COMPONENT,
                 "You need to build a larger pyramid with more layers to unlock this effect.");
         translationBuilder.add(LevelBasedOperationButton.AMPLIFY_EFFECT_COMPONENT,
                 "You need to build a larger pyramid with more layers to further amplify this effect.");
         translationBuilder.add(LevelBasedOperationButton.MODIFY_EFFECT_COMPONENT,
                 "You need to build a larger pyramid with more layers to modify this effect.");
-        translationBuilder.add(UpgradedBeaconScreen.PYRAMID_LEVEL_BONUS_KEY, "%s %s %s");
-        translationBuilder.add(UpgradedBeaconScreen.PYRAMID_LEVEL_BONUS_STATS_KEY, "(+%s/%s)");
+        translationBuilder.add(UpgradedBeaconScreen.PYRAMID_LEVEL_BONUS_KEY, "%s %s");
+        translationBuilder.add(BeaconPaymentItem.EFFECT_DURATION_COMPONENT, "Effect Duration (Seconds)");
+        translationBuilder.add(BeaconBaseBlock.PYRAMID_STRENGTH_COMPONENT, "Pyramid Strength");
+        translationBuilder.add(BeaconBaseBlock.PYRAMID_STRENGTH_POTENTIAL_KEY, "%s (%s/%s)");
+        translationBuilder.add(BeaconBaseBlock.PYRAMID_STRENGTH_REQUIREMENT_KEY, "Required Pyramid Strength: %s / %s");
+        translationBuilder.add(BeaconBaseBlock.PYRAMID_STRENGTH_DESCRIPTION_COMPONENT,
+                "You need to build a pyramid from more valuable materials to amplify strength.");
+        translationBuilder.add(BeaconBaseBlock.EFFECTIVE_RADIUS_COMPONENT, "Effective Radius (Blocks)");
         translationBuilder.add(BeaconEffectTargets.PLAYERS.component, "Players");
         translationBuilder.add(BeaconEffectTargets.PETS.component, "Pets");
-        translationBuilder.add(BeaconEffectTargets.GOLEMS.component, "Golems");
+        translationBuilder.add(BeaconEffectTargets.FRIENDS.component, "Friends");
+        translationBuilder.add(BeaconEffectTargets.ANIMALS.component, "Animals");
     }
 
     @Override

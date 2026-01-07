@@ -23,7 +23,12 @@ public abstract class LevelBasedOperationButton extends ImageButton {
     private final boolean isPowerTooLow;
 
     public LevelBasedOperationButton(LevelBasedEntry<?> levelBasedEntry, int x, int y, WidgetSprites widgetSprites, OnPress onPress, Component component) {
-        super(x, y, 18, 18, widgetSprites, onPress);
+        super(x,
+                y,
+                UpgradedBeaconScreen.SQUARE_BUTTON_SIZE,
+                UpgradedBeaconScreen.SQUARE_BUTTON_SIZE,
+                widgetSprites,
+                onPress);
         this.visible = !levelBasedEntry.isNotAvailable() && this.getVisibleValue(levelBasedEntry);
         this.active = this.getActiveValue(levelBasedEntry);
         if (this.isPowerLevelSufficient(levelBasedEntry)) {
