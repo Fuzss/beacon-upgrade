@@ -28,7 +28,7 @@ public class MobEffectTooltipHelper {
         tooltipLines.add(Component.translatable("potion.withAmplifier", holder.value().getDisplayName(), component));
         if (Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen) {
             ClientAbstractions.INSTANCE.onGatherEffectScreenTooltip(screen,
-                    new MobEffectInstance(holder, MobEffectInstance.INFINITE_DURATION, maxAmplifier),
+                    new MobEffectInstance(holder, 0, maxAmplifier),
                     tooltipLines);
         }
 

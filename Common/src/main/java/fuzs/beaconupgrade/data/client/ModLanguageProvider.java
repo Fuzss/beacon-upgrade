@@ -20,12 +20,22 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
 
     @Override
     public void addTranslations(TranslationBuilder translationBuilder) {
-        translationBuilder.addMobEffect(ModRegistry.REACH_MOB_EFFECT, "Reach");
-        translationBuilder.addMobEffect(ModRegistry.NUTRITION_MOB_EFFECT, "Nutrition");
-        translationBuilder.addMobEffect(ModRegistry.BANE_OF_PHANTOMS_MOB_EFFECT, "Bane of Phantoms");
-        translationBuilder.addMobEffect(ModRegistry.BANE_OF_RAIDERS_MOB_EFFECT, "Bane of Raiders");
-        translationBuilder.addMobEffect(ModRegistry.BANE_OF_TRADERS_MOB_EFFECT, "Bane of Traders");
-        translationBuilder.addMobEffect(ModRegistry.FLIGHT_MOB_EFFECT, "Flight");
+        translationBuilder.add(ModRegistry.REACH_MOB_EFFECT.value(), "Reach");
+        translationBuilder.add(ModRegistry.REACH_MOB_EFFECT.value(), "desc", "Increases block interaction range.");
+        translationBuilder.add(ModRegistry.NUTRITION_MOB_EFFECT.value(), "Nutrition");
+        translationBuilder.add(ModRegistry.NUTRITION_MOB_EFFECT.value(), "desc", "Restores food levels gradually.");
+        translationBuilder.add(ModRegistry.BANE_OF_PHANTOMS_MOB_EFFECT.value(), "Bane of Phantoms");
+        translationBuilder.add(ModRegistry.BANE_OF_PHANTOMS_MOB_EFFECT.value(), "desc", "Prevents phantom spawning.");
+        translationBuilder.add(ModRegistry.BANE_OF_RAIDERS_MOB_EFFECT.value(), "Bane of Raiders");
+        translationBuilder.add(ModRegistry.BANE_OF_RAIDERS_MOB_EFFECT.value(),
+                "desc",
+                "Prevents pillager patrol spawning.");
+        translationBuilder.add(ModRegistry.BANE_OF_TRADERS_MOB_EFFECT.value(), "Bane of Traders");
+        translationBuilder.add(ModRegistry.BANE_OF_TRADERS_MOB_EFFECT.value(),
+                "desc",
+                "Prevents wandering trader spawning.");
+        translationBuilder.add(ModRegistry.FLIGHT_MOB_EFFECT.value(), "Flight");
+        translationBuilder.add(ModRegistry.FLIGHT_MOB_EFFECT.value(), "desc", "Grants the ability to fly.");
         translationBuilder.add(MobEffectAmplifierEntry.PYRAMID_LEVELS_KEY, "Pyramid Levels: %s");
         translationBuilder.add(MobEffectAmplifierEntry.PYRAMID_LEVELS_FRACTION_KEY, "Pyramid Levels: %s / %s");
         translationBuilder.add(MobEffectAmplifierEntry.UNLOCK_EFFECT_COMPONENT,
