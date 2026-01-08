@@ -22,6 +22,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -606,14 +608,19 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                 Component component = ComponentUtils.mergeStyles(levelBasedEntry.getDisplayName(holder,
                         MobEffectSelectionList.this.getWidth() - SQUARE_BUTTON_SIZE * 2,
                         -1), this.getStyle(levelBasedEntry));
-                AbstractWidget abstractWidget = this.addRenderableWidget(new ScrollingStringWidget(
+                StringWidget stringWidget = this.addRenderableWidget(new ScrollingStringWidget(
                         MobEffectSelectionList.this.getX() + SQUARE_BUTTON_SIZE,
                         MobEffectSelectionList.this.getY(),
                         MobEffectSelectionList.this.getWidth() - SQUARE_BUTTON_SIZE * 2,
                         SQUARE_BUTTON_SIZE,
                         component,
                         UpgradedBeaconScreen.this.font));
-                TooltipBuilder.create(levelBasedEntry.getTooltip(holder)).splitLines().build(abstractWidget);
+                TooltipBuilder.create(levelBasedEntry.getTooltip(holder))
+                        .splitLines()
+                        .setTooltipPositionerFactory((ClientTooltipPositioner clientTooltipPositioner, AbstractWidget abstractWidget) -> {
+                            return DefaultTooltipPositioner.INSTANCE;
+                        })
+                        .build(stringWidget);
                 this.addRenderableWidget(new LevelBasedOperationButton.Remove(levelBasedEntry,
                         MobEffectSelectionList.this.getX(),
                         MobEffectSelectionList.this.getY(),
