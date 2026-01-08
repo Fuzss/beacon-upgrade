@@ -51,7 +51,7 @@ public class BeaconUpgrade implements ModConstructor {
                         MOD_ID));
         AddBlockEntityTypeBlocksCallback.EVENT.register(BlockConversionHandler.onAddBlockEntityTypeBlocks(ModRegistry.BEACON_BLOCK_ENTITY_TYPE));
         PlayerInteractEvents.USE_BLOCK.register(BlockConversionHandler.onUseBlock(ModRegistry.UNALTERED_BEACONS_BLOCK_TAG,
-                SoundEvents.BEACON_ACTIVATE,
+                SoundEvents.BEACON_POWER_SELECT,
                 () -> CONFIG.get(ServerConfig.class).convertVanillaBeaconWhenInteracting));
         TagsUpdatedCallback.EVENT.register(EventPhase.FIRST,
                 BlockConversionHandler.onTagsUpdated(ModRegistry.UNALTERED_BEACONS_BLOCK_TAG, BLOCK_PREDICATE));
