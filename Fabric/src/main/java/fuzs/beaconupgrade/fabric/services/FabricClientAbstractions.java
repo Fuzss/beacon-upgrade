@@ -1,6 +1,6 @@
 package fuzs.beaconupgrade.fabric.services;
 
-import fuzs.beaconupgrade.services.ClientAbstractions;
+import fuzs.beaconupgrade.common.services.ClientAbstractions;
 import fuzs.puzzleslib.fabric.api.client.event.v1.FabricGuiEvents;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;

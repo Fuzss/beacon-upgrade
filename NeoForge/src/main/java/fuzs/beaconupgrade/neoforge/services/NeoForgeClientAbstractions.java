@@ -1,6 +1,6 @@
 package fuzs.beaconupgrade.neoforge.services;
 
-import fuzs.beaconupgrade.services.ClientAbstractions;
+import fuzs.beaconupgrade.common.services.ClientAbstractions;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;

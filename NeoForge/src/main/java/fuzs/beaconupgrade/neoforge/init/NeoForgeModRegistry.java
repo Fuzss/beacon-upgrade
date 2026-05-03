@@ -1,6 +1,6 @@
 package fuzs.beaconupgrade.neoforge.init;
 
-import fuzs.beaconupgrade.BeaconUpgrade;
+import fuzs.beaconupgrade.common.BeaconUpgrade;
 import fuzs.puzzleslib.common.api.init.v3.registry.RegistryManager;
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;

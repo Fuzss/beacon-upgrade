@@ -1,6 +1,6 @@
 package fuzs.beaconupgrade.fabric;
 
-import fuzs.beaconupgrade.BeaconUpgrade;
+import fuzs.beaconupgrade.common.BeaconUpgrade;
 import fuzs.puzzleslib.common.api.core.v1.ModConstructor;
 import net.fabricmc.api.ModInitializer;
 

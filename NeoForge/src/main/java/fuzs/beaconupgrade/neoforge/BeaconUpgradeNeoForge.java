@@ -1,10 +1,10 @@
 package fuzs.beaconupgrade.neoforge;
 
-import fuzs.beaconupgrade.BeaconUpgrade;
-import fuzs.beaconupgrade.data.tags.ModBlockTagsProvider;
-import fuzs.beaconupgrade.data.tags.ModEntityTypeTagsProvider;
-import fuzs.beaconupgrade.data.tags.ModItemTagsProvider;
-import fuzs.beaconupgrade.init.ModRegistry;
+import fuzs.beaconupgrade.common.BeaconUpgrade;
+import fuzs.beaconupgrade.common.data.tags.ModBlockTagsProvider;
+import fuzs.beaconupgrade.common.data.tags.ModEntityTypeTagsProvider;
+import fuzs.beaconupgrade.common.data.tags.ModItemTagsProvider;
+import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.neoforge.data.ModDataMapProvider;
 import fuzs.beaconupgrade.neoforge.init.NeoForgeModRegistry;
 import fuzs.puzzleslib.common.api.core.v1.ModConstructor;

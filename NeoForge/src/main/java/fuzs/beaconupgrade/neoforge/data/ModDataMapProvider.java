@@ -1,9 +1,9 @@
 package fuzs.beaconupgrade.neoforge.data;
 
-import fuzs.beaconupgrade.init.ModRegistry;
-import fuzs.beaconupgrade.world.level.block.entity.BeaconBaseBlock;
-import fuzs.beaconupgrade.world.level.block.entity.BeaconLevelEffect;
-import fuzs.beaconupgrade.world.level.block.entity.BeaconPaymentItem;
+import fuzs.beaconupgrade.common.init.ModRegistry;
+import fuzs.beaconupgrade.common.world.level.block.entity.BeaconBaseBlock;
+import fuzs.beaconupgrade.common.world.level.block.entity.BeaconLevelEffect;
+import fuzs.beaconupgrade.common.world.level.block.entity.BeaconPaymentItem;
 import fuzs.multiloaderdataextensions.neoforge.api.v2.NeoForgeDataMapToken;
 import fuzs.puzzleslib.common.api.data.v2.core.DataProviderContext;
 import net.minecraft.core.HolderLookup;
