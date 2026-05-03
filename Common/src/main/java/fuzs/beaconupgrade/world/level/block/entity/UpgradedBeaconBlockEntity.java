@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.beaconupgrade.world.inventory.UpgradedBeaconMenu;
-import fuzs.puzzleslib.api.block.v1.entity.TickingBlockEntity;
+import fuzs.puzzleslib.common.api.block.v1.entity.TickingBlockEntity;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -270,12 +270,12 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
                 for (int posZ = blockPos.getZ() - pyramidLevel; posZ <= blockPos.getZ() + pyramidLevel; ++posZ) {
                     BlockState blockState = level.getBlockState(mutableBlockPos.set(posX, posY, posZ));
                     if (minBonusHolder == null || !blockState.is(minBonusHolder)) {
-                        BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(blockState.getBlockHolder());
+                        BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(blockState.typeHolder());
                         if (beaconBaseBlock != null) {
                             int maxBonus = beaconBaseBlock.getMaxPyramidStrength();
                             if (maxBonus < minBonus) {
                                 minBonus = maxBonus;
-                                minBonusHolder = blockState.getBlockHolder();
+                                minBonusHolder = blockState.typeHolder();
                             }
                         } else {
                             return builder.build();

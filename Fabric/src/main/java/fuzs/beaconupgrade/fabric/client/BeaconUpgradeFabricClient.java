@@ -2,7 +2,7 @@ package fuzs.beaconupgrade.fabric.client;
 
 import fuzs.beaconupgrade.BeaconUpgrade;
 import fuzs.beaconupgrade.client.BeaconUpgradeClient;
-import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
+import fuzs.puzzleslib.common.api.client.core.v1.ClientModConstructor;
 import net.fabricmc.api.ClientModInitializer;
 
 public class BeaconUpgradeFabricClient implements ClientModInitializer {

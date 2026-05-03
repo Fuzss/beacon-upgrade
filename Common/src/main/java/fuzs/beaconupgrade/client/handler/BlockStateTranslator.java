@@ -24,12 +24,13 @@ public class BlockStateTranslator {
 
     private BlockState convertBlockState(StateDefinition<Block, BlockState> newStateDefinition, BlockState oldBlockState) {
         BlockState newBlockState = newStateDefinition.any();
-        for (Map.Entry<Property<?>, Comparable<?>> entry : oldBlockState.getValues().entrySet()) {
-            newBlockState = this.setBlockStateValue(entry.getKey(),
-                    entry.getValue(),
+        for (Property.Value<?> value : oldBlockState.getValues().toList()) {
+            newBlockState = this.setBlockStateValue(value.property(),
+                    value.value(),
                     newStateDefinition::getProperty,
                     newBlockState);
         }
+
         return newBlockState;
     }
 
@@ -39,6 +40,7 @@ public class BlockStateTranslator {
             Comparable<?> newValue = this.getNewPropertyValue(oldProperty, newProperty, oldValue);
             return blockState.setValue((Property<T>) newProperty, (V) newValue);
         }
+
         return blockState;
     }
 

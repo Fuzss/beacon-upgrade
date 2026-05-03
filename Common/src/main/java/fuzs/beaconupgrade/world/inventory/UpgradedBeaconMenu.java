@@ -3,7 +3,7 @@ package fuzs.beaconupgrade.world.inventory;
 import com.mojang.datafixers.util.Pair;
 import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.beaconupgrade.world.level.block.entity.*;
-import fuzs.puzzleslib.api.container.v1.QuickMoveRuleSet;
+import fuzs.puzzleslib.common.api.container.v1.QuickMoveRuleSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -61,7 +61,7 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(this.container, PAYMENT_SLOT, 8, 23) {
             @Override
             public boolean mayPlace(ItemStack itemStack) {
-                return BeaconPaymentItem.get(itemStack.getItemHolder()) != null;
+                return BeaconPaymentItem.get(itemStack.typeHolder()) != null;
             }
 
             @Override

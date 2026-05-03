@@ -1,9 +1,9 @@
 package fuzs.beaconupgrade.handler;
 
 import fuzs.beaconupgrade.init.ModRegistry;
-import fuzs.puzzleslib.api.event.v1.core.EventResult;
-import fuzs.puzzleslib.api.event.v1.data.MutableDouble;
-import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
+import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
+import fuzs.puzzleslib.common.api.event.v1.data.MutableDouble;
+import fuzs.puzzleslib.common.api.event.v1.data.MutableFloat;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 abstract class WanderingTraderSpawnerMixin {
 
     @ModifyVariable(method = "spawn", at = @At("STORE"))
-    private @Nullable Player spawn(@Nullable Player player, ServerLevel serverLevel) {
+    private @Nullable Player spawn(@Nullable Player player, ServerLevel level) {
         return player != null && !player.hasEffect(ModRegistry.BANE_OF_TRADERS_MOB_EFFECT) ? player : null;
     }
 }

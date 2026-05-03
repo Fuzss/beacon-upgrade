@@ -5,13 +5,12 @@ import fuzs.beaconupgrade.client.gui.screens.inventory.UpgradedBeaconScreen;
 import fuzs.beaconupgrade.client.handler.BlockStateTranslator;
 import fuzs.beaconupgrade.handler.BlockConversionHandler;
 import fuzs.beaconupgrade.init.ModRegistry;
-import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
-import fuzs.puzzleslib.api.client.core.v1.context.BlockEntityRenderersContext;
-import fuzs.puzzleslib.api.client.core.v1.context.BlockStateResolverContext;
-import fuzs.puzzleslib.api.client.core.v1.context.MenuScreensContext;
-import fuzs.puzzleslib.api.client.core.v1.context.RenderTypesContext;
-import fuzs.puzzleslib.api.client.renderer.v1.model.ModelLoadingHelper;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import fuzs.puzzleslib.common.api.client.core.v1.ClientModConstructor;
+import fuzs.puzzleslib.common.api.client.core.v1.context.BlockEntityRenderersContext;
+import fuzs.puzzleslib.common.api.client.core.v1.context.BlockStateResolverContext;
+import fuzs.puzzleslib.common.api.client.core.v1.context.MenuScreensContext;
+import fuzs.puzzleslib.common.api.client.renderer.v1.model.ModelLoadingHelper;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BeaconRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BlockStateModelLoader;
@@ -57,16 +56,8 @@ public class BeaconUpgradeClient implements ClientModConstructor {
     @Override
     public void onRegisterBlockEntityRenderers(BlockEntityRenderersContext context) {
         context.registerBlockEntityRenderer(ModRegistry.BEACON_BLOCK_ENTITY_TYPE.value(),
-                (BlockEntityRendererProvider.Context rendererProviderContext) -> {
+                (BlockEntityRendererProvider.Context _) -> {
                     return new BeaconRenderer<>();
                 });
-    }
-
-    @Override
-    public void onRegisterBlockRenderTypes(RenderTypesContext<Block> context) {
-        // This runs deferred by default, so we should have all entries from other mods available to us.
-        for (Map.Entry<Block, Block> entry : BlockConversionHandler.getBlockConversions().entrySet()) {
-            context.registerChunkRenderType(entry.getValue(), context.getChunkRenderType(entry.getKey()));
-        }
     }
 }

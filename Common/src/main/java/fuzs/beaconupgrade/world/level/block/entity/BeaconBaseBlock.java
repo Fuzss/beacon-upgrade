@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.beaconupgrade.BeaconUpgrade;
 import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.beaconupgrade.world.item.enchantment.ClampedLevelBasedValue;
-import fuzs.neoforgedatapackextensions.api.v2.DataMapLookup;
+import fuzs.multiloaderdataextensions.common.api.v2.DataMapLookup;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;

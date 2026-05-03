@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
 import fuzs.beaconupgrade.BeaconUpgrade;
-import fuzs.beaconupgrade.client.gui.components.AbstractMenuSelectionList;
 import fuzs.beaconupgrade.client.gui.components.ItemStackDisplayWidget;
 import fuzs.beaconupgrade.client.gui.components.LevelBasedOperationButton;
 import fuzs.beaconupgrade.client.gui.components.ScrollingStringWidget;
@@ -13,13 +12,14 @@ import fuzs.beaconupgrade.client.util.MobEffectTooltipHelper;
 import fuzs.beaconupgrade.network.client.ServerboundBeaconEffectsMessage;
 import fuzs.beaconupgrade.world.inventory.UpgradedBeaconMenu;
 import fuzs.beaconupgrade.world.level.block.entity.*;
-import fuzs.puzzleslib.api.client.gui.v2.tooltip.TooltipBuilder;
-import fuzs.puzzleslib.api.network.v4.MessageSender;
-import fuzs.puzzleslib.api.util.v1.CommonHelper;
+import fuzs.puzzleslib.common.api.client.gui.v2.components.AbstractMenuSelectionList;
+import fuzs.puzzleslib.common.api.client.gui.v2.tooltip.TooltipBuilder;
+import fuzs.puzzleslib.common.api.network.v4.MessageSender;
+import fuzs.puzzleslib.common.api.util.v1.CommonHelper;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
@@ -127,9 +127,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     private int updateFlags;
 
     public UpgradedBeaconScreen(UpgradedBeaconMenu menu, Inventory inventory, Component component) {
-        super(menu, inventory, component);
-        this.imageWidth = 220;
-        this.imageHeight = 185;
+        super(menu, inventory, component, 220, 185);
         this.inventoryLabelX = 30;
         this.inventoryLabelY = this.imageHeight - 94;
         this.getMenu().addSlotListener(this);
@@ -247,18 +245,18 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
             }
 
             @Override
-            public void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-                super.renderContents(guiGraphics, mouseX, mouseY, partialTick);
+            public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+                super.extractContents(guiGraphics, mouseX, mouseY, partialTick);
                 this.renderLabel(guiGraphics);
             }
 
-            private void renderLabel(GuiGraphics guiGraphics) {
+            private void renderLabel(GuiGraphicsExtractor guiGraphics) {
                 int posX = this.getX() + this.getWidth() - UpgradedBeaconScreen.this.font.width(this.getMessage());
                 int posY = this.getY() + this.getHeight() - UpgradedBeaconScreen.this.font.lineHeight + 1;
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
                         if (i != 0 || j != 0) {
-                            guiGraphics.drawString(UpgradedBeaconScreen.this.font,
+                            guiGraphics.text(UpgradedBeaconScreen.this.font,
                                     this.backdropMessage,
                                     posX + i,
                                     posY + j,
@@ -268,7 +266,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                     }
                 }
 
-                guiGraphics.drawString(UpgradedBeaconScreen.this.font, this.getMessage(), posX, posY, -1, false);
+                guiGraphics.text(UpgradedBeaconScreen.this.font, this.getMessage(), posX, posY, -1, false);
             }
         });
         this.cancelButton = this.addRenderableWidget(new ImageButton(this.leftPos + BUTTON_OFFSET_X,
@@ -291,10 +289,10 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                     }
                 }) {
             @Override
-            public void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
                 BeaconEffectTargets effectTargets = UpgradedBeaconScreen.this.getMenu().getEffectTargets();
                 this.sprites = EFFECT_TARGET_SPRITES.getOrDefault(effectTargets, PLAYER_BUTTON_SPRITES);
-                super.renderContents(guiGraphics, mouseX, mouseY, partialTick);
+                super.extractContents(guiGraphics, mouseX, mouseY, partialTick);
             }
         });
         TooltipBuilder.create()
@@ -354,7 +352,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
 
     private void getTooltipLines(ItemStack itemStack, Consumer<Component> tooltipAdder) {
         tooltipAdder.accept(Items.BEACON.getDefaultInstance().getStyledHoverName());
-        BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack.getItemHolder());
+        BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack.typeHolder());
         int duration = beaconPaymentItem != null ? beaconPaymentItem.getDuration(this.getMenu().getPyramidLevels()) : 0;
         List<MobEffectInstance> mobEffects = this.mobEffects.object2IntEntrySet()
                 .stream()
@@ -419,7 +417,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     protected List<Component> getTooltipFromContainerItem(ItemStack itemStack) {
         List<Component> tooltipLines = new ArrayList<>();
         TooltipFlag tooltipFlag = this.getTooltipFlag();
-        BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack.getItemHolder());
+        BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack.typeHolder());
         if (beaconPaymentItem != null) {
             beaconPaymentItem.addToTooltip(this.getMenu().getPyramidLevels(), tooltipLines::add, tooltipFlag);
         }
@@ -534,14 +532,14 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         isPowerTooLow = false;
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED,
                 TEXTURE_LOCATION,
                 this.leftPos,
@@ -559,7 +557,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                 this.topPos + slot.y - 1,
                 SQUARE_BUTTON_SIZE,
                 SQUARE_BUTTON_SIZE);
-        this.slotBackground.render(this.getMenu(), guiGraphics, partialTick, this.leftPos, this.topPos);
+        this.slotBackground.extractRenderState(this.getMenu(), guiGraphics, partialTick, this.leftPos, this.topPos);
     }
 
     @Override
@@ -585,16 +583,16 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     private class MobEffectSelectionList extends AbstractMenuSelectionList<MobEffectSelectionList.Entry> {
 
         public MobEffectSelectionList(int x, int y) {
-            super(UpgradedBeaconScreen.this.minecraft, x, y, 160, 70, SQUARE_BUTTON_SIZE, 8);
+            super(UpgradedBeaconScreen.this.minecraft, x, y, 160, 70, SQUARE_BUTTON_SIZE);
+        }
+
+        @Override
+        protected int scrollBarX() {
+            return this.getRowRight() + 8;
         }
 
         public void addEntry(Holder<MobEffect> holder, LevelBasedEntry<MobEffect> levelBasedEntry) {
             this.addEntry(new Entry(holder, levelBasedEntry));
-        }
-
-        @Override
-        public void clearEntries() {
-            super.clearEntries();
         }
 
         class Entry extends AbstractMenuSelectionList.Entry<Entry> {
@@ -660,14 +658,14 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
             }
 
             @Override
-            public void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
+            public void extractContent(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
                 guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
                         this.backgroundSprite,
                         this.getContentX(),
                         this.getContentY(),
                         this.getContentWidth(),
                         this.getContentHeight());
-                super.renderContent(guiGraphics, mouseX, mouseY, hovering, partialTick);
+                super.extractContent(guiGraphics, mouseX, mouseY, hovering, partialTick);
                 if (hovering && this.isPowerTooLow) {
                     UpgradedBeaconScreen.setIsPowerTooLow(true);
                 }

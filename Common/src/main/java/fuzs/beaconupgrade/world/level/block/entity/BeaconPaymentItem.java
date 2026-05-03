@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.beaconupgrade.BeaconUpgrade;
 import fuzs.beaconupgrade.init.ModRegistry;
-import fuzs.neoforgedatapackextensions.api.v2.DataMapLookup;
+import fuzs.multiloaderdataextensions.common.api.v2.DataMapLookup;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;

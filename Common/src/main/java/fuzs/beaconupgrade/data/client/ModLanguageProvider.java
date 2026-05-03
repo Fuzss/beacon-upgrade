@@ -7,8 +7,8 @@ import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.beaconupgrade.world.level.block.entity.BeaconBaseBlock;
 import fuzs.beaconupgrade.world.level.block.entity.BeaconEffectTargets;
 import fuzs.beaconupgrade.world.level.block.entity.BeaconPaymentItem;
-import fuzs.puzzleslib.api.client.data.v2.AbstractLanguageProvider;
-import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
+import fuzs.puzzleslib.common.api.client.data.v2.AbstractLanguageProvider;
+import fuzs.puzzleslib.common.api.data.v2.core.DataProviderContext;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.block.Block;
 

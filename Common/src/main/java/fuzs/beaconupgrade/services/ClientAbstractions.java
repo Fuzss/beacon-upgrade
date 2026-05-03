@@ -1,6 +1,6 @@
 package fuzs.beaconupgrade.services;
 
-import fuzs.puzzleslib.api.core.v1.ServiceProviderHelper;
+import fuzs.puzzleslib.common.api.core.v1.ServiceProviderHelper;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;

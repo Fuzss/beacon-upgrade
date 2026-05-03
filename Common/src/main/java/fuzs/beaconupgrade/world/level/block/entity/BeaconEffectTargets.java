@@ -64,7 +64,7 @@ public enum BeaconEffectTargets implements Predicate<LivingEntity>, StringRepres
 
     @Override
     public boolean test(LivingEntity livingEntity) {
-        if (livingEntity.getType().is(this.tagKey)) {
+        if (livingEntity.is(this.tagKey)) {
             return true;
         } else {
             return this.isEffectTarget(livingEntity) && !this.isNeverEffectTarget(livingEntity);

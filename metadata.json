@@ -1,9 +1,10 @@
 {
+    "minecraft": "26.1.2",
     "mod": {
         "id": "beaconupgrade",
         "group": "fuzs.beaconupgrade",
         "name": "Beacon Upgrade",
-        "version": "21.11.0",
+        "version": "26.1.0",
         "authors": [
             "Fuzs"
         ],
@@ -12,7 +13,7 @@
     },
     "dependencies": [
         {
-            "name": "neoforgedatapackextensions",
+            "name": "multiloaderdataextensions",
             "type": "embedded",
             "platforms": [
                 "fabric",

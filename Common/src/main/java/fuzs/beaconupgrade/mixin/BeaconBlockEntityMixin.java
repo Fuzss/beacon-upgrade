@@ -22,9 +22,9 @@ abstract class BeaconBlockEntityMixin extends BlockEntity {
     @WrapOperation(method = "tick",
                    at = @At(value = "INVOKE",
                             target = "Lnet/minecraft/world/level/block/entity/BeaconBlockEntity;updateBase(Lnet/minecraft/world/level/Level;III)I"))
-    private static int tick(Level level, int x, int y, int z, Operation<Integer> operation, Level level2, BlockPos blockPos, BlockState blockState, BeaconBlockEntity blockEntity) {
-        if (blockEntity instanceof UpgradedBeaconBlockEntity) {
-            return ((UpgradedBeaconBlockEntity) blockEntity).updatePowerLevels(level, blockPos).size();
+    private static int tick(Level level, int x, int y, int z, Operation<Integer> operation, Level levelX, BlockPos pos, BlockState selfState, BeaconBlockEntity entity) {
+        if (entity instanceof UpgradedBeaconBlockEntity) {
+            return ((UpgradedBeaconBlockEntity) entity).updatePowerLevels(level, pos).size();
         } else {
             return operation.call(level, x, y, z);
         }

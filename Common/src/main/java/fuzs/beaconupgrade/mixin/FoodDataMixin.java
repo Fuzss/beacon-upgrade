@@ -16,10 +16,10 @@ abstract class FoodDataMixin {
                                     target = "Lnet/minecraft/world/food/FoodData;saturationLevel:F",
                                     opcode = Opcodes.GETFIELD,
                                     ordinal = 0))
-    public float tick(float saturationLevel, ServerPlayer serverPlayer) {
+    public float tick(float saturationLevel, ServerPlayer player) {
         // Prevent saturation from ticking down, use hunger directly instead, so players do not loose saturation while the effect is active.
         // The hunger points themselves are restored by the effect, but it does not affect saturation at all.
-        if (serverPlayer.hasEffect(ModRegistry.NUTRITION_MOB_EFFECT)) {
+        if (player.hasEffect(ModRegistry.NUTRITION_MOB_EFFECT)) {
             return -1.0F;
         } else {
             return saturationLevel;

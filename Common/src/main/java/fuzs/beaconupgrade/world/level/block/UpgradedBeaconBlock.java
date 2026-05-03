@@ -3,7 +3,7 @@ package fuzs.beaconupgrade.world.level.block;
 import com.mojang.serialization.MapCodec;
 import fuzs.beaconupgrade.init.ModRegistry;
 import fuzs.beaconupgrade.world.level.block.entity.UpgradedBeaconBlockEntity;
-import fuzs.puzzleslib.api.block.v1.entity.TickingEntityBlock;
+import fuzs.puzzleslib.common.api.block.v1.entity.TickingEntityBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;

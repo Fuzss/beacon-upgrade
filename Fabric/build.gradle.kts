@@ -5,8 +5,8 @@ plugins {
 dependencies {
     modApi(sharedLibs.fabricapi.fabric)
     modApi(sharedLibs.puzzleslib.fabric)
-    modApi(sharedLibs.neoforgedatapackextensions.fabric)
-    include(sharedLibs.neoforgedatapackextensions.fabric)
+    modApi(sharedLibs.multiloaderdataextensions.fabric)
+    include(sharedLibs.multiloaderdataextensions.fabric)
 }
 
 multiloader {
