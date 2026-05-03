@@ -1,5 +1,23 @@
 # Beacon Upgrade
 
-A Minecraft mod. Downloads can be found on [CurseForge](https://www.curseforge.com/members/fuzs_/projects) and [Modrinth](https://modrinth.com/user/Fuzs).
+### Minecraft 26.x
 
-![](https://raw.githubusercontent.com/Fuzss/modresources/main/pages/data/beaconupgrade/banner.png)
+| Branch | Status | Changelog |
+| --- | --- | --- |
+| [26.1.x](https://github.com/Fuzss/beacon-upgrade/tree/26.1.x) | ✅&nbsp;Primary | [CHANGELOG.md](https://github.com/Fuzss/beacon-upgrade/blob/26.1.x/CHANGELOG.md) |
+
+### Minecraft 1.21.x
+
+| Branch | Status | Changelog |
+| --- | --- | --- |
+| [1.21.11](https://github.com/Fuzss/beacon-upgrade/tree/1.21.11) | ❌&nbsp;Archived | [CHANGELOG.md](https://github.com/Fuzss/beacon-upgrade/blob/1.21.11/CHANGELOG.md) |
+
+---
+
+**✅&nbsp;Primary** — Latest version with active development and new features
+
+**✅&nbsp;Maintained** — Receives backports and selected new features
+
+**⚠️&nbsp;Bugfixes&nbsp;only** — Critical fixes and crash fixes only
+
+**❌&nbsp;Archived** — No longer updated
