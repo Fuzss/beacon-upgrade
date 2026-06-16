@@ -53,23 +53,16 @@ This means a single weaker block in a layer can reduce what that whole layer con
 
 Beacon Upgrade configures the vanilla beacon materials as follows:
 
-| Block           | Effective radius per layer | Pyramid strength                 |
-|-----------------|----------------------------|----------------------------------|
-| Copper blocks   | 8                          | 0, scaling up to the layer limit |
-| Iron Block      | 10                         | 1                                |
-| Gold Block      | 12                         | 2                                |
-| Emerald Block   | 15                         | 3                                |
-| Diamond Block   | 20                         | 4                                |
-| Netherite Block | 30                         | 5                                |
+| Block           | Effective radius per layer | Pyramid strength |
+|-----------------|----------------------------|------------------|
+| Copper blocks   | 8                          | 0                |
+| Iron Block      | 10                         | 1                |
+| Gold Block      | 12                         | 2                |
+| Emerald Block   | 15                         | 3                |
+| Diamond Block   | 20                         | 4                |
+| Netherite Block | 30                         | 5                |
 
-The configured pyramid strength is clamped by the layer number. In practical terms, stronger materials can unlock stronger beacon potential, but they are still limited by how many layers the pyramid actually has.
-
-For example:
-
-- An iron layer contributes low strength.
-- A diamond layer contributes much more strength.
-- A netherite layer has the highest default potential.
-- Copper can be used as a beacon base material, but is intentionally much weaker.
+The configured pyramid strength is clamped by the layer number. In practical terms, stronger materials can unlock stronger beacon potential, but they are still limited by the pyramid layer the material is found at.
 
 ## Beacon range
 
@@ -111,8 +104,8 @@ Instead of choosing from a small set of primary effects plus regeneration or lev
 Each effect has:
 
 - A minimum pyramid level requirement
-- A maximum amplifier based on pyramid level
 - A pyramid strength cost per amplifier
+- A maximum amplifier based on pyramid level
 
 This means stronger or more advanced effects require a better pyramid.
 
@@ -120,20 +113,20 @@ This means stronger or more advanced effects require a better pyramid.
 
 Beacon Upgrade includes the following configured effects by default:
 
-| Effect           | Notes                                                          |
-|------------------|----------------------------------------------------------------|
-| Speed            | Available early and scales with pyramid level                  |
-| Haste            | Available early, capped at amplifier 4                         |
-| Jump Boost       | Requires more pyramid investment                               |
-| Resistance       | Requires more pyramid investment, capped at amplifier 4        |
-| Strength         | Requires a stronger pyramid, capped at amplifier 4             |
-| Regeneration     | Available as a normal selectable effect, capped at amplifier 2 |
-| Fire Resistance  | Added as a beacon effect                                       |
-| Reach            | Added by this mod                                              |
-| Nutrition        | Added by this mod                                              |
-| Bane of Raiders  | Added by this mod                                              |
-| Bane of Phantoms | Added by this mod                                              |
-| Flight           | Added by this mod                                              |
+| Effect           | Pyramid Level | Pyramid Strength per Amplifier | Max Effect Amplifier |
+|------------------|--------------:|-------------------------------:|---------------------:|
+| Haste            |             1 |                              1 |                    5 |
+| Reach            |             1 |                              2 |                    5 |
+| Speed            |             1 |                              1 |                    5 |
+| Jump Boost       |             2 |                              2 |                    4 |
+| Regeneration     |             2 |                              4 |                    3 |
+| Resistance       |             2 |                              2 |                    4 |
+| Fire Resistance  |             3 |                              3 |                    3 |
+| Nutrition        |             3 |                              4 |                    3 |
+| Strength         |             3 |                              3 |                    3 |
+| Bane of Phantoms |             4 |                              4 |                    1 |
+| Bane of Raiders  |             4 |                              4 |                    1 |
+| Flight           |             5 |                             10 |                    1 |
 
 The exact strength available depends on the configured effect data and the current pyramid level.
 
@@ -142,16 +135,6 @@ The exact strength available depends on the configured effect data and the curre
 Beacon Upgrade is not limited to one primary and one secondary effect.
 
 Effects can be enabled, disabled, and adjusted in the upgraded beacon screen, as long as the pyramid can support them.
-
-Effect amplifiers are internally stored using Minecraft's normal amplifier values:
-
-| Displayed level | Internal amplifier |
-|-----------------|--------------------|
-| Level I         | 0                  |
-| Level II        | 1                  |
-| Level III       | 2                  |
-| Level IV        | 3                  |
-| Level V         | 4                  |
 
 An effect's maximum amplifier is defined by data map configuration. If the pyramid becomes too small or too weak, selected effects may be clamped or become unavailable until the pyramid is restored.
 
@@ -176,29 +159,14 @@ Target groups can be extended with entity type tags, allowing data packs to add 
 
 Beacon Upgrade adds several effects intended for beacon use.
 
-### Reach
-
-Increases block interaction range.
-
-### Nutrition
-
-A beneficial effect related to food and hunger management.
-
-### Bane of Raiders
-
-A beacon effect intended to help against raid-related threats.
-
-### Bane of Phantoms
-
-A beacon effect intended to help against phantoms.
-
-### Bane of Traders
-
-Registered by the mod for trader-related mechanics.
-
-### Flight
-
-Provides flight where supported by the current mod loader/platform implementation.
+| Effect           | Description                         |
+|------------------|-------------------------------------|
+| Reach            | Increases block interaction range.  |
+| Nutrition        | Restores food levels gradually.     |
+| Bane of Raiders  | Prevents pillager patrol spawning.  |
+| Bane of Phantoms | Prevents phantom spawning.          |
+| Bane of Traders  | Prevents wandering trader spawning. |
+| Flight           | Grants the ability to fly.          |
 
 ## Summary for players
 
@@ -272,24 +240,6 @@ Example:
     ]
 }
 ```
-### Unaltered beacons
-
-Beacon Upgrade provides this block tag:
-```text
-data/beaconupgrade/tags/block/unaltered_beacons.json
-```
-Blocks in this tag are excluded from the upgraded beacon behaviour and remain unchanged.
-
-This is mainly useful for compatibility with other mods that add beacon-like blocks and should not use Beacon Upgrade's replacement logic.
-
-Example:
-```json
-{
-    "values": [
-        "examplemod:special_beacon"
-    ]
-}
-```
 ### Beacon target entity tags
 
 Beacon target modes can be extended with entity type tags:
@@ -312,7 +262,7 @@ Example:
 ```
 ## [Data maps](https://docs.neoforged.net/docs/resources/server/datamaps/)
 
-Beacon Upgrade defines three data maps:
+Beacon Upgrade defines these data maps:
 
 | Data map                             | Registry    | Purpose                                |
 |--------------------------------------|-------------|----------------------------------------|
@@ -524,4 +474,19 @@ This is useful for making values scale with pyramid level while preventing them 
 
 Beacon Upgrade replaces the vanilla beacon block entity and menu behaviour for normal beacons. Mods or data packs that change beacon mechanics may need compatibility adjustments.
 
-Use the `beaconupgrade:unaltered_beacons` block tag for beacon-like blocks that should not be upgraded.
+The mod provides this block tag:
+```text
+data/beaconupgrade/tags/block/unaltered_beacons.json
+```
+Blocks in this tag are excluded from the upgraded beacon behaviour and remain unchanged.
+
+This is mainly useful for compatibility with other mods that add beacon-like blocks and should not use Beacon Upgrade's replacement logic.
+
+Example:
+```json
+{
+    "values": [
+        "examplemod:special_beacon"
+    ]
+}
+```
