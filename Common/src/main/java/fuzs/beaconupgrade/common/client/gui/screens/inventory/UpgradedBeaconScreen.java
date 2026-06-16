@@ -138,7 +138,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     }
 
     private static Identifier getPyramidLevelSprite(int pyramidLevel) {
-        return PYRAMID_LEVEL_SPRITES.get(Math.clamp(pyramidLevel, 0, PYRAMID_LEVEL_SPRITES.size() - 1));
+        return PYRAMID_LEVEL_SPRITES.get(Math.clamp(pyramidLevel - 1, 0, PYRAMID_LEVEL_SPRITES.size() - 1));
     }
 
     protected boolean hasChanged() {

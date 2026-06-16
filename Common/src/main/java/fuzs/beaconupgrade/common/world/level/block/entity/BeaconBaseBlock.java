@@ -16,7 +16,6 @@ import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public record BeaconBaseBlock(LevelBasedValue pyramidStrength,
@@ -40,9 +39,8 @@ public record BeaconBaseBlock(LevelBasedValue pyramidStrength,
 
     public BeaconBaseBlock(int pyramidStrength, int effectiveRadius) {
         this(new ClampedLevelBasedValue(LevelBasedValue.constant(pyramidStrength),
-                        LevelBasedValue.constant(0.0F),
-                        LevelBasedValue.perLevel(1.0F)),
-                LevelBasedValue.lookup(List.of(effectiveRadius * 2.0F), LevelBasedValue.constant(effectiveRadius)));
+                LevelBasedValue.constant(0.0F),
+                LevelBasedValue.perLevel(1.0F)), LevelBasedValue.constant(effectiveRadius));
     }
 
     public int getMaxPyramidStrength() {
@@ -74,14 +72,10 @@ public record BeaconBaseBlock(LevelBasedValue pyramidStrength,
 
     private Component getPyramidStrengthComponent(int pyramidStrength) {
         int maxPyramidStrength = this.getMaxPyramidStrength();
-        if (maxPyramidStrength > pyramidStrength) {
-            return Component.translatable(PYRAMID_STRENGTH_POTENTIAL_KEY,
-                    PYRAMID_STRENGTH_COMPONENT,
-                    pyramidStrength,
-                    maxPyramidStrength);
-        } else {
-            return PYRAMID_STRENGTH_COMPONENT;
-        }
+        return Component.translatable(PYRAMID_STRENGTH_POTENTIAL_KEY,
+                PYRAMID_STRENGTH_COMPONENT,
+                pyramidStrength,
+                maxPyramidStrength);
     }
 
     public static @Nullable BeaconBaseBlock get(Holder<Block> holder) {

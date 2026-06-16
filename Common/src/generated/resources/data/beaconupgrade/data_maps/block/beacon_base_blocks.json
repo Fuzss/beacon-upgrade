@@ -1,13 +1,7 @@
 {
   "values": {
     "#minecraft:copper": {
-      "effective_radius": {
-        "type": "minecraft:lookup",
-        "fallback": 8.0,
-        "values": [
-          16.0
-        ]
-      },
+      "effective_radius": 8.0,
       "pyramid_strength": {
         "type": "beaconupgrade:clamped",
         "max": {
@@ -20,13 +14,7 @@
       }
     },
     "minecraft:diamond_block": {
-      "effective_radius": {
-        "type": "minecraft:lookup",
-        "fallback": 20.0,
-        "values": [
-          40.0
-        ]
-      },
+      "effective_radius": 20.0,
       "pyramid_strength": {
         "type": "beaconupgrade:clamped",
         "max": {
@@ -39,13 +27,7 @@
       }
     },
     "minecraft:emerald_block": {
-      "effective_radius": {
-        "type": "minecraft:lookup",
-        "fallback": 15.0,
-        "values": [
-          30.0
-        ]
-      },
+      "effective_radius": 15.0,
       "pyramid_strength": {
         "type": "beaconupgrade:clamped",
         "max": {
@@ -58,13 +40,7 @@
       }
     },
     "minecraft:gold_block": {
-      "effective_radius": {
-        "type": "minecraft:lookup",
-        "fallback": 12.0,
-        "values": [
-          24.0
-        ]
-      },
+      "effective_radius": 12.0,
       "pyramid_strength": {
         "type": "beaconupgrade:clamped",
         "max": {
@@ -77,13 +53,7 @@
       }
     },
     "minecraft:iron_block": {
-      "effective_radius": {
-        "type": "minecraft:lookup",
-        "fallback": 10.0,
-        "values": [
-          20.0
-        ]
-      },
+      "effective_radius": 10.0,
       "pyramid_strength": {
         "type": "beaconupgrade:clamped",
         "max": {
@@ -96,13 +66,7 @@
       }
     },
     "minecraft:netherite_block": {
-      "effective_radius": {
-        "type": "minecraft:lookup",
-        "fallback": 30.0,
-        "values": [
-          60.0
-        ]
-      },
+      "effective_radius": 30.0,
       "pyramid_strength": {
         "type": "beaconupgrade:clamped",
         "max": {
