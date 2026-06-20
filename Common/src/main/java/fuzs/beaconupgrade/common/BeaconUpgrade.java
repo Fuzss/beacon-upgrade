@@ -16,7 +16,7 @@ import fuzs.puzzleslib.common.api.event.v1.core.EventPhase;
 import fuzs.puzzleslib.common.api.event.v1.entity.living.LivingFallCallback;
 import fuzs.puzzleslib.common.api.event.v1.entity.living.MobEffectEvents;
 import fuzs.puzzleslib.common.api.event.v1.entity.player.PlayerInteractEvents;
-import fuzs.puzzleslib.common.api.event.v1.server.TagsUpdatedCallback;
+import fuzs.puzzleslib.common.api.event.v1.server.ServerResourcesLoadCallback;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
@@ -53,8 +53,9 @@ public class BeaconUpgrade implements ModConstructor {
         PlayerInteractEvents.USE_BLOCK.register(BlockConversionHandler.onUseBlock(ModRegistry.UNALTERED_BEACONS_BLOCK_TAG,
                 SoundEvents.BEACON_POWER_SELECT,
                 () -> CONFIG.get(ServerConfig.class).convertVanillaBeaconWhenInteracting));
-        TagsUpdatedCallback.EVENT.register(EventPhase.FIRST,
-                BlockConversionHandler.onTagsUpdated(ModRegistry.UNALTERED_BEACONS_BLOCK_TAG, BLOCK_PREDICATE));
+        ServerResourcesLoadCallback.EVENT.register(EventPhase.FIRST,
+                BlockConversionHandler.onServerResourcesLoad(ModRegistry.UNALTERED_BEACONS_BLOCK_TAG,
+                        BLOCK_PREDICATE)::accept);
         LivingFallCallback.EVENT.register(FlightEffectHandler::onLivingFall);
         MobEffectEvents.EXPIRE.register(EventPhase.BEFORE, FlightEffectHandler::onMobEffectExpire);
         if (ModLoaderEnvironment.INSTANCE.getModLoader().isFabricLike()) {

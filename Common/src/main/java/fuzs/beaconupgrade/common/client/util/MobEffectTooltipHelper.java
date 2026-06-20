@@ -5,7 +5,7 @@ import fuzs.beaconupgrade.common.world.level.block.entity.BeaconLevelEffect;
 import fuzs.beaconupgrade.common.world.level.block.entity.UpgradedBeaconBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Holder;
 import net.minecraft.data.AtlasIds;
@@ -26,7 +26,7 @@ public class MobEffectTooltipHelper {
         List<Component> tooltipLines = new ArrayList<>();
         Component component = getLevelComponent(maxAmplifier);
         tooltipLines.add(Component.translatable("potion.withAmplifier", holder.value().getDisplayName(), component));
-        if (Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen) {
+        if (Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> screen) {
             ClientAbstractions.INSTANCE.onGatherEffectScreenTooltip(screen,
                     new MobEffectInstance(holder, 0, maxAmplifier),
                     tooltipLines);
@@ -66,7 +66,7 @@ public class MobEffectTooltipHelper {
     }
 
     private static MutableComponent getSpriteDisplayName(Holder<MobEffect> holder) {
-        Component guiAtlasComponent = getGuiAtlasComponent(Gui.getMobEffectSprite(holder));
+        Component guiAtlasComponent = getGuiAtlasComponent(Hud.getMobEffectSprite(holder));
         return Component.translatable("potion.withAmplifier", guiAtlasComponent, holder.value().getDisplayName());
     }
 
