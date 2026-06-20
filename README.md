@@ -4,7 +4,8 @@
 
 | Branch | Status | Changelog |
 | --- | --- | --- |
-| [26.1.x](https://github.com/Fuzss/beacon-upgrade/tree/26.1.x) | ✅&nbsp;Primary | [CHANGELOG.md](https://github.com/Fuzss/beacon-upgrade/blob/26.1.x/CHANGELOG.md) |
+| [26.2.x](https://github.com/Fuzss/beacon-upgrade/tree/26.2.x) | ✅&nbsp;Primary | [CHANGELOG.md](https://github.com/Fuzss/beacon-upgrade/blob/26.2.x/CHANGELOG.md) |
+| [26.1.x](https://github.com/Fuzss/beacon-upgrade/tree/26.1.x) | ✅&nbsp;Maintained | [CHANGELOG.md](https://github.com/Fuzss/beacon-upgrade/blob/26.1.x/CHANGELOG.md) |
 
 ### Minecraft 1.21.x
 
