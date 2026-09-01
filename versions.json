@@ -4,7 +4,9 @@
     "26.1.x": "maintained",
     "26.2.x": "primary"
   },
-  "properties": {
-    "distributions.github.slug": "beacon-upgrade"
+  "distributions": {
+    "github": {
+      "slug": "beacon-upgrade"
+    }
   }
 }
