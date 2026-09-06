@@ -44,7 +44,7 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
                 "You need to build a larger pyramid with more layers to further amplify this effect.");
         translationBuilder.add(LevelBasedOperationButton.MODIFY_EFFECT_COMPONENT,
                 "You need to build a larger pyramid with more layers to modify this effect.");
-        translationBuilder.add(UpgradedBeaconScreen.PYRAMID_LEVEL_BONUS_KEY, "%s %s");
+        translationBuilder.add(UpgradedBeaconScreen.PYRAMID_LEVEL_BONUS_KEY, "%s: %s");
         translationBuilder.add(BeaconPaymentItem.EFFECT_DURATION_COMPONENT, "Effect Duration (Seconds)");
         translationBuilder.add(BeaconBaseBlock.PYRAMID_STRENGTH_COMPONENT, "Pyramid Strength");
         translationBuilder.add(BeaconBaseBlock.PYRAMID_STRENGTH_POTENTIAL_KEY, "%s (%s/%s)");

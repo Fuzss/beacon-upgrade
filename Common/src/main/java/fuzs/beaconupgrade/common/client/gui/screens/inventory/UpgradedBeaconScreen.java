@@ -409,9 +409,10 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
         Pair<Block, BeaconBaseBlock> pyramidLevelPower = this.getMenu().getPyramidStrength(pyramidLevel);
         if (pyramidLevelPower != null) {
             Block block = pyramidLevelPower.getFirst();
-            ResourceLocation identifier = getPyramidLevelSprite(pyramidLevel);
-            Component guiAtlasComponent = MobEffectTooltipHelper.getGuiAtlasComponent(identifier);
-            Component component = Component.translatable(PYRAMID_LEVEL_BONUS_KEY, guiAtlasComponent, block.getName());
+            Component pyramidLevelComponent = MobEffectTooltipHelper.getEnchantmentLevel(pyramidLevel);
+            Component component = Component.translatable(PYRAMID_LEVEL_BONUS_KEY,
+                    pyramidLevelComponent,
+                    block.getName());
             tooltipAdder.accept(component);
             pyramidLevelPower.getSecond().addToTooltip(pyramidLevel, tooltipAdder, tooltipFlag);
             return true;
@@ -618,7 +619,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                 Component component = ComponentUtils.mergeStyles(levelBasedEntry.getDisplayName(holder,
                         MobEffectSelectionList.this.getWidth() - SQUARE_BUTTON_SIZE * 2,
                         -1).copy(), this.getStyle(levelBasedEntry));
-                StringWidget stringWidget = this.addRenderableWidget(new ScrollingStringWidget(
+                AbstractWidget stringWidget = this.addRenderableWidget(new ScrollingStringWidget(
                         MobEffectSelectionList.this.getX() + SQUARE_BUTTON_SIZE,
                         MobEffectSelectionList.this.getY(),
                         MobEffectSelectionList.this.getWidth() - SQUARE_BUTTON_SIZE * 2,

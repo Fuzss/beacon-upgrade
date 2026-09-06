@@ -4,11 +4,10 @@ import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.common.world.level.block.entity.BeaconBaseBlock;
 import fuzs.beaconupgrade.common.world.level.block.entity.BeaconLevelEffect;
 import fuzs.beaconupgrade.common.world.level.block.entity.BeaconPaymentItem;
-import fuzs.multiloaderdataextensions.neoforge.api.v2.NeoForgeDataMapToken;
+import fuzs.neoforgedatapackextensions.neoforge.api.v1.NeoForgeDataMapToken;
 import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -29,7 +28,10 @@ public class ModDataMapProvider extends DataMapProvider {
     @Override
     protected void gather(HolderLookup.Provider registries) {
         this.builder(NeoForgeDataMapToken.unwrap(ModRegistry.BEACON_BASE_BLOCKS_DATA_MAP_TYPE))
-                .add(BlockTags.COPPER, new BeaconBaseBlock(0, 8), false)
+                .add(Blocks.COPPER_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(0, 8), false)
+                .add(Blocks.EXPOSED_COPPER.builtInRegistryHolder(), new BeaconBaseBlock(0, 8), false)
+                .add(Blocks.WEATHERED_COPPER.builtInRegistryHolder(), new BeaconBaseBlock(0, 8), false)
+                .add(Blocks.OXIDIZED_COPPER.builtInRegistryHolder(), new BeaconBaseBlock(0, 8), false)
                 .add(Blocks.IRON_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(1, 10), false)
                 .add(Blocks.GOLD_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(2, 12), false)
                 .add(Blocks.EMERALD_BLOCK.builtInRegistryHolder(), new BeaconBaseBlock(3, 15), false)
@@ -43,13 +45,13 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(Items.DIAMOND.builtInRegistryHolder(), new BeaconPaymentItem(45, 10), false)
                 .add(Items.NETHERITE_INGOT.builtInRegistryHolder(), new BeaconPaymentItem(90, 15), false);
         this.builder(NeoForgeDataMapToken.unwrap(ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE))
-                .add(MobEffects.SPEED, new BeaconLevelEffect(1), false)
-                .add(MobEffects.HASTE, new BeaconLevelEffect(1, 4, 1), false)
+                .add(MobEffects.MOVEMENT_SPEED, new BeaconLevelEffect(1), false)
+                .add(MobEffects.DIG_SPEED, new BeaconLevelEffect(1, 4, 1), false)
                 .add(ModRegistry.REACH_MOB_EFFECT, new BeaconLevelEffect(1, 2), false)
-                .add(MobEffects.RESISTANCE, new BeaconLevelEffect(2, 4, 2), false)
-                .add(MobEffects.JUMP_BOOST, new BeaconLevelEffect(2), false)
+                .add(MobEffects.DAMAGE_RESISTANCE, new BeaconLevelEffect(2, 4, 2), false)
+                .add(MobEffects.JUMP, new BeaconLevelEffect(2), false)
                 .add(MobEffects.REGENERATION, new BeaconLevelEffect(2, 2, 4), false)
-                .add(MobEffects.STRENGTH, new BeaconLevelEffect(3, 4, 3), false)
+                .add(MobEffects.DAMAGE_BOOST, new BeaconLevelEffect(3, 4, 3), false)
                 .add(MobEffects.FIRE_RESISTANCE, new BeaconLevelEffect(3), false)
                 .add(ModRegistry.NUTRITION_MOB_EFFECT, new BeaconLevelEffect(3, 4, 4), false)
                 .add(ModRegistry.BANE_OF_RAIDERS_MOB_EFFECT, new BeaconLevelEffect(4, 0, 4), false)

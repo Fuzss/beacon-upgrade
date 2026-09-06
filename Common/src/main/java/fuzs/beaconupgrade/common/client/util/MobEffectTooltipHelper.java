@@ -7,11 +7,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Holder;
-import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.objects.AtlasSprite;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 
@@ -62,9 +59,5 @@ public class MobEffectTooltipHelper {
         } else {
             return displayName;
         }
-    }
-
-    public static Component getGuiAtlasComponent(ResourceLocation identifier) {
-        return Component.object(new AtlasSprite(AtlasIds.GUI, identifier)).withStyle(ChatFormatting.WHITE);
     }
 }
