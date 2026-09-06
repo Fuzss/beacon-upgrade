@@ -8,6 +8,7 @@ import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import fuzs.puzzleslib.api.client.core.v1.context.BlockEntityRenderersContext;
 import fuzs.puzzleslib.api.client.core.v1.context.BlockStateResolverContext;
 import fuzs.puzzleslib.api.client.core.v1.context.MenuScreensContext;
+import fuzs.puzzleslib.api.client.core.v1.context.RenderTypesContext;
 import fuzs.puzzleslib.api.client.renderer.v1.model.ModelLoadingHelper;
 import net.minecraft.client.renderer.blockentity.BeaconRenderer;
 import net.minecraft.client.resources.model.UnbakedModel;
@@ -50,5 +51,13 @@ public class BeaconUpgradeClient implements ClientModConstructor {
     @Override
     public void onRegisterBlockEntityRenderers(BlockEntityRenderersContext context) {
         context.registerBlockEntityRenderer(ModRegistry.BEACON_BLOCK_ENTITY_TYPE.value(), BeaconRenderer::new);
+    }
+
+    @Override
+    public void onRegisterBlockRenderTypes(RenderTypesContext<Block> context) {
+        // this runs deferred by default, so we should have all entries from other mods available to us
+        for (Map.Entry<Block, Block> entry : BlockConversionHandler.getBlockConversions().entrySet()) {
+            context.registerRenderType(entry.getValue(), context.getRenderType(entry.getKey()));
+        }
     }
 }

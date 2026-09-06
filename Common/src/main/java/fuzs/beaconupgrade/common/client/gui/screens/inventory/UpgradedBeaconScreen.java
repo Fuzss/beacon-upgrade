@@ -604,6 +604,13 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
             return this.getRowRight() + 8;
         }
 
+        @Deprecated
+        @Override
+        protected void renderItem(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, int index, int left, int top, int width, int height) {
+            // Add back height subtracted by vanilla for the item outline, which we have removed.
+            super.renderItem(guiGraphics, mouseX, mouseY, partialTick, index, left, top, width, height + 4);
+        }
+
         public void addEntry(Holder<MobEffect> holder, LevelBasedEntry<MobEffect> levelBasedEntry) {
             this.addEntry(new Entry(holder, levelBasedEntry));
         }

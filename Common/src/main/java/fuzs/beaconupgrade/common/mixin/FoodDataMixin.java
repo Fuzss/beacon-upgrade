@@ -2,7 +2,7 @@ package fuzs.beaconupgrade.common.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import fuzs.beaconupgrade.common.init.ModRegistry;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +16,7 @@ abstract class FoodDataMixin {
                                     target = "Lnet/minecraft/world/food/FoodData;saturationLevel:F",
                                     opcode = Opcodes.GETFIELD,
                                     ordinal = 0))
-    public float tick(float saturationLevel, ServerPlayer player) {
+    public float tick(float saturationLevel, Player player) {
         // Prevent saturation from ticking down, use hunger directly instead, so players do not loose saturation while the effect is active.
         // The hunger points themselves are restored by the effect, but it does not affect saturation at all.
         if (player.hasEffect(ModRegistry.NUTRITION_MOB_EFFECT)) {

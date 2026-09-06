@@ -7,3 +7,9 @@ dependencies {
     api(sharedLibs.neoforgedatapackextensions.neoforge)
     include(sharedLibs.neoforgedatapackextensions.neoforge)
 }
+
+multiloader {
+    mixins {
+        clientMixin("BlockStateModelLoaderNeoForgeMixin")
+    }
+}
