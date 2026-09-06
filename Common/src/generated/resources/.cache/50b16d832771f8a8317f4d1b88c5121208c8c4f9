@@ -1,3 +1,3 @@
-// 26.2	2026-06-20T17:20:58.390323	Tags for minecraft:block mod id vanilla
+// 1.21.1	2026-09-06T12:06:18.062775	Tags for minecraft:block mod id vanilla
 35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/beaconupgrade/tags/block/unaltered_beacons.json
-740766625c0708dd82bd7b9c40a7a74102570ace data/minecraft/tags/block/beacon_base_blocks.json
+a1550a0ba70d99947ef8b41d9eb0f4efead559c3 data/minecraft/tags/block/beacon_base_blocks.json

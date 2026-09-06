@@ -1,7 +1,10 @@
 {
   "pack": {
     "description": "Resources for Beacon Upgrade",
-    "max_format": 107,
-    "min_format": 107
+    "pack_format": 48,
+    "supported_formats": [
+      0,
+      2147483647
+    ]
   }
 }

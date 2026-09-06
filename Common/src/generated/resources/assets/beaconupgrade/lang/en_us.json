@@ -19,7 +19,7 @@
   "gui.beaconupgrade.beacon.tooltip.modify_effect": "You need to build a larger pyramid with more layers to modify this effect.",
   "gui.beaconupgrade.beacon.tooltip.pets": "Pets",
   "gui.beaconupgrade.beacon.tooltip.players": "Players",
-  "gui.beaconupgrade.beacon.tooltip.pyramid_level_bonus": "%s %s",
+  "gui.beaconupgrade.beacon.tooltip.pyramid_level_bonus": "%s: %s",
   "gui.beaconupgrade.beacon.tooltip.pyramid_levels": "Pyramid Levels: %s",
   "gui.beaconupgrade.beacon.tooltip.pyramid_levels_fraction": "Pyramid Levels: %s / %s",
   "gui.beaconupgrade.beacon.tooltip.pyramid_strength": "Pyramid Strength",

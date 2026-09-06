@@ -1,6 +1,6 @@
 {
   "values": {
-    "#minecraft:copper": {
+    "minecraft:copper_block": {
       "effective_radius": 8.0,
       "pyramid_strength": {
         "type": "beaconupgrade:clamped",
@@ -37,6 +37,19 @@
         },
         "min": 0.0,
         "value": 3.0
+      }
+    },
+    "minecraft:exposed_copper": {
+      "effective_radius": 8.0,
+      "pyramid_strength": {
+        "type": "beaconupgrade:clamped",
+        "max": {
+          "type": "minecraft:linear",
+          "base": 1.0,
+          "per_level_above_first": 1.0
+        },
+        "min": 0.0,
+        "value": 0.0
       }
     },
     "minecraft:gold_block": {
@@ -76,6 +89,32 @@
         },
         "min": 0.0,
         "value": 5.0
+      }
+    },
+    "minecraft:oxidized_copper": {
+      "effective_radius": 8.0,
+      "pyramid_strength": {
+        "type": "beaconupgrade:clamped",
+        "max": {
+          "type": "minecraft:linear",
+          "base": 1.0,
+          "per_level_above_first": 1.0
+        },
+        "min": 0.0,
+        "value": 0.0
+      }
+    },
+    "minecraft:weathered_copper": {
+      "effective_radius": 8.0,
+      "pyramid_strength": {
+        "type": "beaconupgrade:clamped",
+        "max": {
+          "type": "minecraft:linear",
+          "base": 1.0,
+          "per_level_above_first": 1.0
+        },
+        "min": 0.0,
+        "value": 0.0
       }
     }
   }
