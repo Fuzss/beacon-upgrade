@@ -4,6 +4,6 @@ plugins {
 
 dependencies {
     modApi(sharedLibs.puzzleslib.neoforge)
-    modApi(sharedLibs.multiloaderdataextensions.neoforge)
-    include(sharedLibs.multiloaderdataextensions.neoforge)
+    api(sharedLibs.neoforgedatapackextensions.neoforge)
+    include(sharedLibs.neoforgedatapackextensions.neoforge)
 }
