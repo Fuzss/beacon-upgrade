@@ -27,7 +27,7 @@
             ]
         },
         {
-            "name": "multiloaderdataextensions",
+            "name": "neoforgedatapackextensions",
             "type": "embedded",
             "platforms": [
                 "fabric",
