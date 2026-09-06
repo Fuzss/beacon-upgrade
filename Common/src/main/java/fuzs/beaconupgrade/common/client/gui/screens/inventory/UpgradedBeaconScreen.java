@@ -30,9 +30,11 @@ import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -127,9 +129,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     private int updateFlags;
 
     public UpgradedBeaconScreen(UpgradedBeaconMenu menu, Inventory inventory, Component component) {
-        super(menu, inventory, component);
-        this.imageWidth = 220;
-        this.imageHeight = 185;
+        super(menu, inventory, component, 220, 185);
         this.inventoryLabelX = 30;
         this.inventoryLabelY = this.imageHeight - 94;
         this.getMenu().addSlotListener(this);
@@ -352,7 +352,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     }
 
     private void getTooltipLines(ItemStack itemStack, Consumer<Component> tooltipAdder) {
-        tooltipAdder.accept(getStyledHoverName(Items.BEACON.getDefaultInstance()));
+        tooltipAdder.accept(ItemHelper.getStyledHoverName(Items.BEACON.getDefaultInstance()));
         BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack.getItemHolder());
         int duration = beaconPaymentItem != null ? beaconPaymentItem.getDuration(this.getMenu().getPyramidLevels()) : 0;
         List<MobEffectInstance> mobEffects = this.mobEffects.object2IntEntrySet()
@@ -368,18 +368,6 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                 tooltipAdder,
                 1.0F,
                 this.minecraft.level.tickRateManager().tickrate());
-    }
-
-    @Deprecated
-    public static Component getStyledHoverName(ItemStack itemStack) {
-        MutableComponent hoverName = Component.empty()
-                .append(itemStack.getHoverName())
-                .withStyle(ItemHelper.getRarityStyle(itemStack.getRarity()));
-        if (itemStack.has(DataComponents.CUSTOM_NAME)) {
-            return hoverName.withStyle(ChatFormatting.ITALIC);
-        } else {
-            return hoverName;
-        }
     }
 
     private void refreshPyramidLevels() {
@@ -602,13 +590,6 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
         @Override
         protected int scrollBarX() {
             return this.getRowRight() + 8;
-        }
-
-        @Deprecated
-        @Override
-        protected void renderItem(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, int index, int left, int top, int width, int height) {
-            // Add back height subtracted by vanilla for the item outline, which we have removed.
-            super.renderItem(guiGraphics, mouseX, mouseY, partialTick, index, left, top, width, height + 4);
         }
 
         public void addEntry(Holder<MobEffect> holder, LevelBasedEntry<MobEffect> levelBasedEntry) {

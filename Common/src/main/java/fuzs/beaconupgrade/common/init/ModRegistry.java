@@ -15,9 +15,9 @@ import fuzs.puzzleslib.api.attachment.v4.DataAttachmentType;
 import fuzs.puzzleslib.api.init.v3.registry.RegistryManager;
 import fuzs.puzzleslib.api.init.v3.tags.TagFactory;
 import fuzs.puzzleslib.api.network.v3.PlayerSet;
+import fuzs.puzzleslib.api.network.v4.codec.ExtraStreamCodecs;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffect;
@@ -106,7 +106,7 @@ public class ModRegistry {
 
     public static final DataAttachmentType<Entity, Unit> FALL_DAMAGE_IMMUNITY_ATTACHMENT_TYPE = DataAttachmentRegistry.<Unit>entityBuilder()
             .persistent(Unit.CODEC)
-            .networkSynchronized(StreamCodec.unit(Unit.INSTANCE), PlayerSet::ofEntity)
+            .networkSynchronized(ExtraStreamCodecs.UNIT, PlayerSet::ofEntity)
             .build(BeaconUpgrade.id("fall_damage_immunity"));
 
     public static void bootstrap() {
