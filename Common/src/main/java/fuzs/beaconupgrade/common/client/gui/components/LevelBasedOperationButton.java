@@ -3,16 +3,15 @@ package fuzs.beaconupgrade.common.client.gui.components;
 import fuzs.beaconupgrade.common.BeaconUpgrade;
 import fuzs.beaconupgrade.common.client.gui.screens.inventory.LevelBasedEntry;
 import fuzs.beaconupgrade.common.client.gui.screens.inventory.UpgradedBeaconScreen;
-import fuzs.puzzleslib.common.api.client.gui.v2.tooltip.TooltipBuilder;
-import fuzs.puzzleslib.common.api.util.v1.CommonHelper;
+import fuzs.puzzleslib.api.client.gui.v2.components.tooltip.TooltipBuilder;
+import fuzs.puzzleslib.api.util.v1.CommonHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.Util;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
+import net.minecraft.resources.ResourceLocation;
 
 public abstract class LevelBasedOperationButton extends ImageButton {
     public static final Component AMPLIFY_EFFECT_COMPONENT = Component.translatable(Util.makeDescriptionId("gui",
@@ -46,23 +45,13 @@ public abstract class LevelBasedOperationButton extends ImageButton {
     protected abstract boolean isPowerLevelSufficient(LevelBasedEntry<?> levelBasedEntry);
 
     @Override
-    public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (this.isActive() && CommonHelper.hasShiftDown()) {
-            Identifier identifier = this.sprites.get(true, this.isHoveredOrFocused());
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
-                    identifier,
-                    this.getX() - 3,
-                    this.getY(),
-                    this.width,
-                    this.height);
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
-                    identifier,
-                    this.getX() + 3,
-                    this.getY(),
-                    this.width,
-                    this.height);
+            ResourceLocation identifier = this.sprites.get(true, this.isHoveredOrFocused());
+            guiGraphics.blitSprite(identifier, this.getX() - 3, this.getY(), this.width, this.height);
+            guiGraphics.blitSprite(identifier, this.getX() + 3, this.getY(), this.width, this.height);
         } else {
-            super.extractContents(guiGraphics, mouseX, mouseY, partialTick);
+            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
         }
 
         if (this.isPowerTooLow && this.isHoveredOrFocused()) {

@@ -4,19 +4,19 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
-import fuzs.puzzleslib.common.api.block.v1.BlockConversionHelper;
-import fuzs.puzzleslib.common.api.event.v1.AddBlockEntityTypeBlocksCallback;
-import fuzs.puzzleslib.common.api.event.v1.RegistryEntryAddedCallback;
-import fuzs.puzzleslib.common.api.event.v1.core.EventResultHolder;
-import fuzs.puzzleslib.common.api.event.v1.entity.player.PlayerInteractEvents;
+import fuzs.puzzleslib.api.block.v1.BlockConversionHelper;
+import fuzs.puzzleslib.api.event.v1.AddBlockEntityTypeBlocksCallback;
+import fuzs.puzzleslib.api.event.v1.RegistryEntryAddedCallback;
+import fuzs.puzzleslib.api.event.v1.core.EventResultHolder;
+import fuzs.puzzleslib.api.event.v1.entity.player.PlayerInteractEvents;
+import fuzs.puzzleslib.api.event.v1.server.TagsUpdatedCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.ReloadableServerResources;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -29,28 +29,28 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.*;
 
 public class BlockConversionHandler {
     private static final BiMap<Block, Block> BLOCK_CONVERSIONS = HashBiMap.create();
+    private static final BiMap<Block, Block> BLOCK_CONVERSIONS_VIEW = Maps.unmodifiableBiMap(BLOCK_CONVERSIONS);
     private static final Map<BlockState, BlockState> BLOCK_STATE_CONVERSIONS_CACHE = new MapMaker().weakKeys()
             .weakValues()
             .makeMap();
 
-    public static RegistryEntryAddedCallback<Block> onRegistryEntryAdded(Predicate<Block> filter, Function<BlockBehaviour.Properties, Block> factory, String modId) {
-        return (Registry<Block> registry, Identifier id, Block block, BiConsumer<Identifier, Supplier<Block>> registrar) -> {
+    public static RegistryEntryAddedCallback<Block> onRegistryEntryAdded(Predicate<Block> filter, UnaryOperator<Block> factory, String modId) {
+        return (Registry<Block> registry, ResourceLocation id, Block block, BiConsumer<ResourceLocation, Supplier<Block>> registrar) -> {
             if (filter.test(block)) {
-                Identifier identifier = Identifier.fromNamespaceAndPath(modId, id.getNamespace() + "/" + id.getPath());
-                registrar.accept(identifier, () -> {
-                    BlockBehaviour.Properties properties = BlockConversionHelper.copyBlockProperties(block, identifier);
-                    Block newBlock = factory.apply(properties);
+                ResourceLocation updatedId = ResourceLocation.fromNamespaceAndPath(modId,
+                        id.getNamespace() + "/" + id.getPath());
+                registrar.accept(updatedId, () -> {
+                    Block newBlock = factory.apply(block);
                     BLOCK_CONVERSIONS.put(block, newBlock);
                     return newBlock;
                 });
@@ -59,7 +59,7 @@ public class BlockConversionHandler {
     }
 
     public static BiMap<Block, Block> getBlockConversions() {
-        return Maps.unmodifiableBiMap(BLOCK_CONVERSIONS);
+        return BLOCK_CONVERSIONS_VIEW;
     }
 
     public static AddBlockEntityTypeBlocksCallback onAddBlockEntityTypeBlocks(Holder.Reference<? extends BlockEntityType<?>> blockEntityType) {
@@ -100,28 +100,18 @@ public class BlockConversionHandler {
         };
     }
 
-    public static Consumer<RegistryAccess> onClientTagsUpdated(TagKey<Block> unalteredBlocks, Predicate<Block> filter) {
-        return (RegistryAccess registries) -> {
-            onTagsUpdated(unalteredBlocks, filter);
-        };
-    }
-
-    public static BiConsumer<ReloadableServerResources, RegistryAccess> onServerResourcesLoad(TagKey<Block> unalteredBlocks, Predicate<Block> filter) {
-        return (ReloadableServerResources serverResources, RegistryAccess registries) -> {
-            onTagsUpdated(unalteredBlocks, filter);
-        };
-    }
-
-    private static void onTagsUpdated(TagKey<Block> unalteredBlocks, Predicate<Block> filter) {
-        for (Map.Entry<ResourceKey<Item>, Item> entry : BuiltInRegistries.ITEM.entrySet()) {
-            if (entry.getValue() instanceof BlockItem blockItem) {
-                Block block = blockItem.getBlock();
-                setItemForBlock(filter, blockItem, block);
-                setBlockForItem(unalteredBlocks, blockItem, block);
+    public static TagsUpdatedCallback onTagsUpdated(TagKey<Block> unalteredBlocks, Predicate<Block> filter) {
+        return (RegistryAccess registries, boolean client) -> {
+            for (Map.Entry<ResourceKey<Item>, Item> entry : BuiltInRegistries.ITEM.entrySet()) {
+                if (entry.getValue() instanceof BlockItem blockItem) {
+                    Block block = blockItem.getBlock();
+                    setItemForBlock(filter, blockItem, block);
+                    setBlockForItem(unalteredBlocks, blockItem, block);
+                }
             }
-        }
 
-        BLOCK_CONVERSIONS.forEach(BlockConversionHelper::copyBoundTags);
+            BLOCK_CONVERSIONS.forEach(BlockConversionHelper::copyBoundTags);
+        };
     }
 
     private static void setItemForBlock(Predicate<Block> filter, BlockItem blockItem, Block block) {
@@ -185,8 +175,8 @@ public class BlockConversionHandler {
     }
 
     private static <T extends Comparable<T>, V extends T> BlockState copyAllProperties(BlockState oldBlockState, BlockState newBlockState) {
-        for (Property.Value<?> value : oldBlockState.getValues().toList()) {
-            newBlockState = newBlockState.trySetValue((Property<T>) value.property(), (V) value.value());
+        for (Map.Entry<Property<?>, Comparable<?>> entry : oldBlockState.getValues().entrySet()) {
+            newBlockState = newBlockState.trySetValue((Property<T>) entry.getKey(), (V) entry.getValue());
         }
 
         return newBlockState;

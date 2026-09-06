@@ -1,9 +1,8 @@
 package fuzs.beaconupgrade.common.handler;
 
 import fuzs.beaconupgrade.common.init.ModRegistry;
-import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
-import fuzs.puzzleslib.common.api.event.v1.data.MutableDouble;
-import fuzs.puzzleslib.common.api.event.v1.data.MutableFloat;
+import fuzs.puzzleslib.api.event.v1.core.EventResult;
+import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,12 +10,13 @@ import net.minecraft.world.entity.player.Player;
 
 public class FlightEffectHandler {
 
-    public static EventResult onLivingFall(LivingEntity livingEntity, MutableDouble fallDistance, MutableFloat damageMultiplier) {
+    public static EventResult onLivingFall(LivingEntity livingEntity, MutableFloat fallDistance, MutableFloat damageMultiplier) {
         if (ModRegistry.FALL_DAMAGE_IMMUNITY_ATTACHMENT_TYPE.has(livingEntity)) {
             ModRegistry.FALL_DAMAGE_IMMUNITY_ATTACHMENT_TYPE.set(livingEntity, null);
             return EventResult.INTERRUPT;
+        } else {
+            return EventResult.PASS;
         }
-        return EventResult.PASS;
     }
 
     public static EventResult onMobEffectExpire(LivingEntity livingEntity, MobEffectInstance mobEffect) {

@@ -4,15 +4,21 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.common.world.inventory.UpgradedBeaconMenu;
-import fuzs.puzzleslib.common.api.block.v1.entity.TickingBlockEntity;
+import fuzs.puzzleslib.api.block.v1.entity.TickingBlockEntity;
+import fuzs.puzzleslib.api.util.v1.CompoundTagHelper;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -23,16 +29,16 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -260,7 +266,7 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
         ImmutableList.Builder<Holder<Block>> builder = ImmutableList.builder();
         for (int pyramidLevel = MIN_PYRAMID_LEVELS; pyramidLevel <= MAX_PYRAMID_LEVELS; pyramidLevel++) {
             int posY = blockPos.getY() - pyramidLevel;
-            if (posY < level.getMinY()) {
+            if (posY < level.getMinBuildHeight()) {
                 break;
             }
 
@@ -270,12 +276,12 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
                 for (int posZ = blockPos.getZ() - pyramidLevel; posZ <= blockPos.getZ() + pyramidLevel; ++posZ) {
                     BlockState blockState = level.getBlockState(mutableBlockPos.set(posX, posY, posZ));
                     if (minBonusHolder == null || !blockState.is(minBonusHolder)) {
-                        BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(blockState.typeHolder());
+                        BeaconBaseBlock beaconBaseBlock = BeaconBaseBlock.get(blockState.getBlockHolder());
                         if (beaconBaseBlock != null) {
                             int maxBonus = beaconBaseBlock.getMaxPyramidStrength();
                             if (maxBonus < minBonus) {
                                 minBonus = maxBonus;
-                                minBonusHolder = blockState.typeHolder();
+                                minBonusHolder = blockState.getBlockHolder();
                             }
                         } else {
                             return builder.build();
@@ -332,41 +338,45 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
     }
 
     @Override
-    protected void loadAdditional(ValueInput valueInput) {
-        super.loadAdditional(valueInput);
-        this.pyramidLevels = valueInput.read(TAG_PYRAMID_LEVELS, PYRAMID_LEVELS_CODEC)
+    protected void loadAdditional(CompoundTag input, HolderLookup.Provider registries) {
+        super.loadAdditional(input, registries);
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        this.pyramidLevels = CompoundTagHelper.read(input, TAG_PYRAMID_LEVELS, PYRAMID_LEVELS_CODEC, ops)
                 .orElseGet(Collections::emptyList);
         this.levels = this.pyramidLevels.size();
         this.mobEffects.clear();
-        valueInput.read(TAG_MOB_EFFECTS, MOB_EFFECTS_CODEC).ifPresent((Object2IntMap<Holder<MobEffect>> mobEffects) -> {
-            mobEffects.forEach(this::setMobEffectAmplifier);
-        });
-        this.paymentItem = valueInput.read(TAG_PAYMENT_ITEM, Item.CODEC).orElse(null);
-        this.effectTargets = valueInput.read(TAG_EFFECT_TARGETS, BeaconEffectTargets.CODEC)
+        CompoundTagHelper.read(input, TAG_MOB_EFFECTS, MOB_EFFECTS_CODEC, ops)
+                .ifPresent((Object2IntMap<Holder<MobEffect>> mobEffects) -> {
+                    mobEffects.forEach(this::setMobEffectAmplifier);
+                });
+        this.paymentItem = CompoundTagHelper.read(input, TAG_PAYMENT_ITEM, ItemStack.ITEM_NON_AIR_CODEC, ops)
+                .orElse(null);
+        this.effectTargets = CompoundTagHelper.read(input, TAG_EFFECT_TARGETS, BeaconEffectTargets.CODEC, ops)
                 .orElse(BeaconEffectTargets.PLAYERS);
     }
 
     @Override
-    protected void saveAdditional(ValueOutput valueOutput) {
-        super.saveAdditional(valueOutput);
-        valueOutput.discard("Levels");
-        valueOutput.discard(TAG_PRIMARY);
-        valueOutput.discard(TAG_SECONDARY);
+    protected void saveAdditional(CompoundTag output, HolderLookup.Provider registries) {
+        super.saveAdditional(output, registries);
+        output.remove("Levels");
+        output.remove(TAG_PRIMARY);
+        output.remove(TAG_SECONDARY);
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         if (!this.pyramidLevels.isEmpty()) {
-            valueOutput.store(TAG_PYRAMID_LEVELS, PYRAMID_LEVELS_CODEC, this.pyramidLevels);
+            CompoundTagHelper.store(output, TAG_PYRAMID_LEVELS, PYRAMID_LEVELS_CODEC, ops, this.pyramidLevels);
         }
 
         if (!this.mobEffects.isEmpty()) {
-            valueOutput.store(TAG_MOB_EFFECTS, MOB_EFFECTS_CODEC, this.mobEffects);
+            CompoundTagHelper.store(output, TAG_MOB_EFFECTS, MOB_EFFECTS_CODEC, ops, this.mobEffects);
         }
 
-        valueOutput.storeNullable(TAG_PAYMENT_ITEM, Item.CODEC, this.paymentItem);
-        valueOutput.store(TAG_EFFECT_TARGETS, BeaconEffectTargets.CODEC, this.effectTargets);
+        CompoundTagHelper.storeNullable(output, TAG_PAYMENT_ITEM, ItemStack.ITEM_NON_AIR_CODEC, ops, this.paymentItem);
+        CompoundTagHelper.store(output, TAG_EFFECT_TARGETS, BeaconEffectTargets.CODEC, ops, this.effectTargets);
     }
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-        if (this.lockKey.canUnlock(player)) {
+        if (BaseContainerBlockEntity.canUnlock(player, this.lockKey, this.getDisplayName())) {
             return new UpgradedBeaconMenu(containerId,
                     inventory,
                     this.containerData,

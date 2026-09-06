@@ -5,16 +5,16 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.beaconupgrade.common.BeaconUpgrade;
 import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.common.world.item.enchantment.ClampedLevelBasedValue;
-import fuzs.multiloaderdataextensions.common.api.v2.DataMapLookup;
+import fuzs.neoforgedatapackextensions.api.v1.DataMapRegistry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Util;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.block.Block;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -79,7 +79,8 @@ public record BeaconBaseBlock(LevelBasedValue pyramidStrength,
     }
 
     public static @Nullable BeaconBaseBlock get(Holder<Block> holder) {
-        BeaconBaseBlock beaconBaseBlock = DataMapLookup.getData(ModRegistry.BEACON_BASE_BLOCKS_DATA_MAP_TYPE, holder);
+        BeaconBaseBlock beaconBaseBlock = DataMapRegistry.INSTANCE.getData(ModRegistry.BEACON_BASE_BLOCKS_DATA_MAP_TYPE,
+                holder);
         if (beaconBaseBlock != null) {
             return beaconBaseBlock;
         } else if (holder.is(BlockTags.BEACON_BASE_BLOCKS)) {

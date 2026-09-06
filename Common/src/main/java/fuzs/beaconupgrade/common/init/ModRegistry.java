@@ -8,15 +8,16 @@ import fuzs.beaconupgrade.common.world.level.block.entity.BeaconBaseBlock;
 import fuzs.beaconupgrade.common.world.level.block.entity.BeaconLevelEffect;
 import fuzs.beaconupgrade.common.world.level.block.entity.BeaconPaymentItem;
 import fuzs.beaconupgrade.common.world.level.block.entity.UpgradedBeaconBlockEntity;
-import fuzs.multiloaderdataextensions.common.api.v2.DataMapRegistrar;
-import fuzs.multiloaderdataextensions.common.api.v2.DataMapToken;
-import fuzs.puzzleslib.common.api.attachment.v4.DataAttachmentRegistry;
-import fuzs.puzzleslib.common.api.attachment.v4.DataAttachmentType;
-import fuzs.puzzleslib.common.api.init.v3.registry.RegistryManager;
-import fuzs.puzzleslib.common.api.init.v3.tags.TagFactory;
-import fuzs.puzzleslib.common.api.network.v4.PlayerSet;
+import fuzs.neoforgedatapackextensions.api.v1.DataMapRegistry;
+import fuzs.neoforgedatapackextensions.api.v1.DataMapToken;
+import fuzs.puzzleslib.api.attachment.v4.DataAttachmentRegistry;
+import fuzs.puzzleslib.api.attachment.v4.DataAttachmentType;
+import fuzs.puzzleslib.api.init.v3.registry.RegistryManager;
+import fuzs.puzzleslib.api.init.v3.tags.TagFactory;
+import fuzs.puzzleslib.api.network.v3.PlayerSet;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffect;
@@ -84,19 +85,19 @@ public class ModRegistry {
     public static final TagKey<EntityType<?>> ANIMAL_BEACON_TARGETS_ENTITY_TAG = TAGS.registerEntityTypeTag(
             "animal_beacon_targets");
 
-    public static final DataMapToken<Block, BeaconBaseBlock> BEACON_BASE_BLOCKS_DATA_MAP_TYPE = DataMapRegistrar.register(
+    public static final DataMapToken<Block, BeaconBaseBlock> BEACON_BASE_BLOCKS_DATA_MAP_TYPE = DataMapRegistry.INSTANCE.register(
             BeaconUpgrade.id("beacon_base_blocks"),
             Registries.BLOCK,
             BeaconBaseBlock.CODEC,
             BeaconBaseBlock.CODEC,
             true);
-    public static final DataMapToken<Item, BeaconPaymentItem> BEACON_PAYMENT_ITEMS_DATA_MAP_TYPE = DataMapRegistrar.register(
+    public static final DataMapToken<Item, BeaconPaymentItem> BEACON_PAYMENT_ITEMS_DATA_MAP_TYPE = DataMapRegistry.INSTANCE.register(
             BeaconUpgrade.id("beacon_payment_items"),
             Registries.ITEM,
             BeaconPaymentItem.CODEC,
             BeaconPaymentItem.CODEC,
             true);
-    public static final DataMapToken<MobEffect, BeaconLevelEffect> BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE = DataMapRegistrar.register(
+    public static final DataMapToken<MobEffect, BeaconLevelEffect> BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE = DataMapRegistry.INSTANCE.register(
             BeaconUpgrade.id("beacon_level_effects"),
             Registries.MOB_EFFECT,
             BeaconLevelEffect.CODEC,
@@ -105,7 +106,7 @@ public class ModRegistry {
 
     public static final DataAttachmentType<Entity, Unit> FALL_DAMAGE_IMMUNITY_ATTACHMENT_TYPE = DataAttachmentRegistry.<Unit>entityBuilder()
             .persistent(Unit.CODEC)
-            .networkSynchronized(Unit.STREAM_CODEC, PlayerSet::ofEntity)
+            .networkSynchronized(StreamCodec.unit(Unit.INSTANCE), PlayerSet::ofEntity)
             .build(BeaconUpgrade.id("fall_damage_immunity"));
 
     public static void bootstrap() {

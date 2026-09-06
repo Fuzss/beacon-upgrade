@@ -4,16 +4,16 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.beaconupgrade.common.BeaconUpgrade;
 import fuzs.beaconupgrade.common.init.ModRegistry;
-import fuzs.multiloaderdataextensions.common.api.v2.DataMapLookup;
+import fuzs.neoforgedatapackextensions.api.v1.DataMapRegistry;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.Util;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -47,7 +47,7 @@ public record BeaconPaymentItem(LevelBasedValue durationInSeconds) implements Be
     }
 
     public static @Nullable BeaconPaymentItem get(Holder<Item> holder) {
-        BeaconPaymentItem beaconBaseBlock = DataMapLookup.getData(ModRegistry.BEACON_PAYMENT_ITEMS_DATA_MAP_TYPE,
+        BeaconPaymentItem beaconBaseBlock = DataMapRegistry.INSTANCE.getData(ModRegistry.BEACON_PAYMENT_ITEMS_DATA_MAP_TYPE,
                 holder);
         if (beaconBaseBlock != null) {
             return beaconBaseBlock;

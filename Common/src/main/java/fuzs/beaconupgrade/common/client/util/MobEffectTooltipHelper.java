@@ -5,14 +5,13 @@ import fuzs.beaconupgrade.common.world.level.block.entity.BeaconLevelEffect;
 import fuzs.beaconupgrade.common.world.level.block.entity.UpgradedBeaconBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Holder;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.objects.AtlasSprite;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 
@@ -26,7 +25,7 @@ public class MobEffectTooltipHelper {
         List<Component> tooltipLines = new ArrayList<>();
         Component component = getLevelComponent(maxAmplifier);
         tooltipLines.add(Component.translatable("potion.withAmplifier", holder.value().getDisplayName(), component));
-        if (Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> screen) {
+        if (Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen) {
             ClientAbstractions.INSTANCE.onGatherEffectScreenTooltip(screen,
                     new MobEffectInstance(holder, 0, maxAmplifier),
                     tooltipLines);
@@ -55,8 +54,8 @@ public class MobEffectTooltipHelper {
         return Component.translatable("enchantment.level." + enchantmentLevel);
     }
 
-    public static MutableComponent getSpriteDisplayName(Holder<MobEffect> holder, int amplifier) {
-        MutableComponent displayName = getSpriteDisplayName(holder);
+    public static Component getSpriteDisplayName(Holder<MobEffect> holder, int amplifier) {
+        Component displayName = holder.value().getDisplayName();
         if (amplifier > UpgradedBeaconBlockEntity.DEFAULT_AMPLIFIER
                 && BeaconLevelEffect.get(holder).getMaxAmplifier() != MobEffectInstance.MIN_AMPLIFIER) {
             return Component.translatable("potion.withAmplifier", displayName, getEnchantmentLevel(amplifier + 1));
@@ -65,12 +64,7 @@ public class MobEffectTooltipHelper {
         }
     }
 
-    private static MutableComponent getSpriteDisplayName(Holder<MobEffect> holder) {
-        Component guiAtlasComponent = getGuiAtlasComponent(Hud.getMobEffectSprite(holder));
-        return Component.translatable("potion.withAmplifier", guiAtlasComponent, holder.value().getDisplayName());
-    }
-
-    public static Component getGuiAtlasComponent(Identifier identifier) {
+    public static Component getGuiAtlasComponent(ResourceLocation identifier) {
         return Component.object(new AtlasSprite(AtlasIds.GUI, identifier)).withStyle(ChatFormatting.WHITE);
     }
 }

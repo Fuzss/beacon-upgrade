@@ -3,13 +3,14 @@ package fuzs.beaconupgrade.common.world.inventory;
 import com.mojang.datafixers.util.Pair;
 import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.common.world.level.block.entity.*;
-import fuzs.puzzleslib.common.api.container.v1.QuickMoveRuleSet;
+import fuzs.puzzleslib.api.container.v1.ContainerMenuHelper;
+import fuzs.puzzleslib.api.container.v1.QuickMoveRuleSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -24,7 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -61,7 +62,7 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(this.container, PAYMENT_SLOT, 8, 23) {
             @Override
             public boolean mayPlace(ItemStack itemStack) {
-                return BeaconPaymentItem.get(itemStack.typeHolder()) != null;
+                return BeaconPaymentItem.get(itemStack.getItemHolder()) != null;
             }
 
             @Override
@@ -71,7 +72,7 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
         });
         for (int i = 0; i < 4; ++i) {
             EquipmentSlot equipmentSlot = InventoryMenu.SLOT_IDS[i];
-            Identifier identifier = InventoryMenu.TEXTURE_EMPTY_SLOTS.get(equipmentSlot);
+            ResourceLocation identifier = InventoryMenu.TEXTURE_EMPTY_SLOTS.get(equipmentSlot);
             this.addSlot(new ArmorSlot(inventory,
                     inventory.player,
                     equipmentSlot,
@@ -81,7 +82,7 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
                     identifier));
         }
 
-        this.addStandardInventorySlots(inventory, 30, 103);
+        ContainerMenuHelper.addStandardInventorySlots(this, inventory, 30, 103);
         this.addSlot(new Slot(inventory, Inventory.SLOT_OFFHAND, 8, 161) {
             @Override
             public void setByPlayer(ItemStack newItemStack, ItemStack oldItemStack) {
@@ -90,8 +91,8 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public Identifier getNoItemIcon() {
-                return InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD;
+            public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+                return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
             }
         });
         this.addDataSlots(containerData);
@@ -123,8 +124,8 @@ public class UpgradedBeaconMenu extends AbstractContainerMenu {
      */
     protected static boolean stillValid(ContainerLevelAccess levelAccess, Player player, BlockEntityType<?> blockEntityType) {
         return levelAccess.evaluate((Level level, BlockPos blockPos) ->
-                blockEntityType.isValid(level.getBlockState(blockPos)) && player.isWithinBlockInteractionRange(blockPos,
-                        4.0F), true);
+                        blockEntityType.isValid(level.getBlockState(blockPos)) && player.canInteractWithBlock(blockPos, 4.0F),
+                true);
     }
 
     @Override

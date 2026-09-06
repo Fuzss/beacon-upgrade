@@ -6,19 +6,19 @@ import fuzs.beaconupgrade.common.handler.FlightEffectHandler;
 import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.common.network.client.ServerboundBeaconEffectsMessage;
 import fuzs.beaconupgrade.common.world.level.block.UpgradedBeaconBlock;
-import fuzs.puzzleslib.common.api.config.v3.ConfigHolder;
-import fuzs.puzzleslib.common.api.core.v1.ModConstructor;
-import fuzs.puzzleslib.common.api.core.v1.ModLoaderEnvironment;
-import fuzs.puzzleslib.common.api.core.v1.context.PayloadTypesContext;
-import fuzs.puzzleslib.common.api.event.v1.AddBlockEntityTypeBlocksCallback;
-import fuzs.puzzleslib.common.api.event.v1.RegistryEntryAddedCallback;
-import fuzs.puzzleslib.common.api.event.v1.core.EventPhase;
-import fuzs.puzzleslib.common.api.event.v1.entity.living.LivingFallCallback;
-import fuzs.puzzleslib.common.api.event.v1.entity.living.MobEffectEvents;
-import fuzs.puzzleslib.common.api.event.v1.entity.player.PlayerInteractEvents;
-import fuzs.puzzleslib.common.api.event.v1.server.ServerResourcesLoadCallback;
+import fuzs.puzzleslib.api.config.v3.ConfigHolder;
+import fuzs.puzzleslib.api.core.v1.ModConstructor;
+import fuzs.puzzleslib.api.core.v1.ModLoaderEnvironment;
+import fuzs.puzzleslib.api.core.v1.context.PayloadTypesContext;
+import fuzs.puzzleslib.api.event.v1.AddBlockEntityTypeBlocksCallback;
+import fuzs.puzzleslib.api.event.v1.RegistryEntryAddedCallback;
+import fuzs.puzzleslib.api.event.v1.core.EventPhase;
+import fuzs.puzzleslib.api.event.v1.entity.living.LivingFallCallback;
+import fuzs.puzzleslib.api.event.v1.entity.living.MobEffectEvents;
+import fuzs.puzzleslib.api.event.v1.entity.player.PlayerInteractEvents;
+import fuzs.puzzleslib.api.event.v1.server.TagsUpdatedCallback;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.BeaconBlock;
 import net.minecraft.world.level.block.Block;
@@ -53,9 +53,8 @@ public class BeaconUpgrade implements ModConstructor {
         PlayerInteractEvents.USE_BLOCK.register(BlockConversionHandler.onUseBlock(ModRegistry.UNALTERED_BEACONS_BLOCK_TAG,
                 SoundEvents.BEACON_POWER_SELECT,
                 () -> CONFIG.get(ServerConfig.class).convertVanillaBeaconWhenInteracting));
-        ServerResourcesLoadCallback.EVENT.register(EventPhase.FIRST,
-                BlockConversionHandler.onServerResourcesLoad(ModRegistry.UNALTERED_BEACONS_BLOCK_TAG,
-                        BLOCK_PREDICATE)::accept);
+        TagsUpdatedCallback.EVENT.register(EventPhase.FIRST,
+                BlockConversionHandler.onTagsUpdated(ModRegistry.UNALTERED_BEACONS_BLOCK_TAG, BLOCK_PREDICATE));
         LivingFallCallback.EVENT.register(FlightEffectHandler::onLivingFall);
         MobEffectEvents.EXPIRE.register(EventPhase.BEFORE, FlightEffectHandler::onMobEffectExpire);
         if (ModLoaderEnvironment.INSTANCE.getModLoader().isFabricLike()) {
@@ -69,7 +68,7 @@ public class BeaconUpgrade implements ModConstructor {
         context.playToServer(ServerboundBeaconEffectsMessage.class, ServerboundBeaconEffectsMessage.STREAM_CODEC);
     }
 
-    public static Identifier id(String path) {
-        return Identifier.fromNamespaceAndPath(MOD_ID, path);
+    public static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 }

@@ -3,19 +3,19 @@ package fuzs.beaconupgrade.common.world.level.block.entity;
 import com.mojang.serialization.Codec;
 import fuzs.beaconupgrade.common.BeaconUpgrade;
 import fuzs.beaconupgrade.common.init.ModRegistry;
+import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.golem.AbstractGolem;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Locale;
@@ -32,7 +32,7 @@ public enum BeaconEffectTargets implements Predicate<LivingEntity>, StringRepres
     PETS(ModRegistry.PET_BEACON_TARGETS_ENTITY_TAG) {
         @Override
         public boolean isEffectTarget(LivingEntity livingEntity) {
-            return livingEntity instanceof OwnableEntity ownableEntity && ownableEntity.getOwnerReference() != null;
+            return livingEntity instanceof OwnableEntity ownableEntity && ownableEntity.getOwnerUUID() != null;
         }
     },
     FRIENDS(ModRegistry.FRIEND_BEACON_TARGETS_ENTITY_TAG) {
@@ -64,7 +64,7 @@ public enum BeaconEffectTargets implements Predicate<LivingEntity>, StringRepres
 
     @Override
     public boolean test(LivingEntity livingEntity) {
-        if (livingEntity.is(this.tagKey)) {
+        if (livingEntity.getType().is(this.tagKey)) {
             return true;
         } else {
             return this.isEffectTarget(livingEntity) && !this.isNeverEffectTarget(livingEntity);

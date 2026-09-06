@@ -4,17 +4,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.common.world.item.enchantment.ClampedLevelBasedValue;
-import fuzs.multiloaderdataextensions.common.api.v2.DataMapLookup;
+import fuzs.neoforgedatapackextensions.api.v1.DataMapRegistry;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Map;
 
 public record BeaconLevelEffect(LevelBasedValue maxAmplifier, LevelBasedValue strengthPerAmplifier) {
     public static final Codec<BeaconLevelEffect> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -68,36 +66,32 @@ public record BeaconLevelEffect(LevelBasedValue maxAmplifier, LevelBasedValue st
     }
 
     public static BeaconLevelEffect get(Holder<MobEffect> mobEffect) {
-        return DataMapLookup.getDataMap(BuiltInRegistries.MOB_EFFECT, ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE)
-                .getOrDefault(mobEffect.unwrapKey().orElseThrow(), DEFAULT);
+        BeaconLevelEffect beaconLevelEffect = DataMapRegistry.INSTANCE.getData(ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE,
+                mobEffect);
+        return beaconLevelEffect != null ? beaconLevelEffect : DEFAULT;
     }
 
     public static Collection<? extends Holder<MobEffect>> getValidMobEffects() {
-        return DataMapLookup.getDataMap(BuiltInRegistries.MOB_EFFECT, ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE)
-                .entrySet()
-                .stream()
-                .filter((Map.Entry<ResourceKey<MobEffect>, BeaconLevelEffect> entry) -> {
-                    return entry.getValue().getMinPyramidLevels() >= UpgradedBeaconBlockEntity.MIN_PYRAMID_LEVELS;
-                })
-                .map(Map.Entry::getKey)
-                .map(BuiltInRegistries.MOB_EFFECT::getOrThrow)
-                .toList();
+        return BuiltInRegistries.MOB_EFFECT.holders().filter((Holder.Reference<MobEffect> holder) -> {
+            BeaconLevelEffect beaconLevelEffect = DataMapRegistry.INSTANCE.getData(ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE,
+                    holder);
+            return beaconLevelEffect != null
+                    && beaconLevelEffect.getMinPyramidLevels() >= UpgradedBeaconBlockEntity.MIN_PYRAMID_LEVELS;
+        }).toList();
     }
 
     public static Collection<? extends Holder<MobEffect>> getSortedValidMobEffects() {
-        return DataMapLookup.getDataMap(BuiltInRegistries.MOB_EFFECT, ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE)
-                .entrySet()
-                .stream()
-                .filter((Map.Entry<ResourceKey<MobEffect>, BeaconLevelEffect> entry) -> {
-                    return entry.getValue().getMinPyramidLevels() >= UpgradedBeaconBlockEntity.MIN_PYRAMID_LEVELS;
-                })
-                .sorted(Comparator.comparingInt((Map.Entry<ResourceKey<MobEffect>, BeaconLevelEffect> entry) -> {
-                    return entry.getValue().getMinPyramidLevels();
-                }).thenComparing((Map.Entry<ResourceKey<MobEffect>, BeaconLevelEffect> entry) -> {
-                    return entry.getKey().identifier();
-                }))
-                .map(Map.Entry::getKey)
-                .map(BuiltInRegistries.MOB_EFFECT::getOrThrow)
-                .toList();
+        return BuiltInRegistries.MOB_EFFECT.holders().filter((Holder.Reference<MobEffect> holder) -> {
+            BeaconLevelEffect beaconLevelEffect = DataMapRegistry.INSTANCE.getData(ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE,
+                    holder);
+            return beaconLevelEffect != null
+                    && beaconLevelEffect.getMinPyramidLevels() >= UpgradedBeaconBlockEntity.MIN_PYRAMID_LEVELS;
+        }).sorted(Comparator.comparingInt((Holder.Reference<MobEffect> holder) -> {
+            BeaconLevelEffect beaconLevelEffect = DataMapRegistry.INSTANCE.getData(ModRegistry.BEACON_LEVEL_EFFECTS_DATA_MAP_TYPE,
+                    holder);
+            return beaconLevelEffect != null ? beaconLevelEffect.getMinPyramidLevels() : 0;
+        }).thenComparing((Holder.Reference<MobEffect> holder) -> {
+            return holder.key().location();
+        })).toList();
     }
 }

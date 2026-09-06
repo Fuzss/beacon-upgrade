@@ -7,7 +7,7 @@ import fuzs.beaconupgrade.common.data.tags.ModItemTagsProvider;
 import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.neoforge.data.ModDataMapProvider;
 import fuzs.beaconupgrade.neoforge.init.NeoForgeModRegistry;
-import fuzs.puzzleslib.common.api.core.v1.ModConstructor;
+import fuzs.puzzleslib.api.core.v1.ModConstructor;
 import fuzs.puzzleslib.neoforge.api.data.v2.core.DataProviderHelper;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;

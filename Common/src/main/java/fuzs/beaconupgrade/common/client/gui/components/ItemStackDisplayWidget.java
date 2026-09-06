@@ -1,12 +1,10 @@
 package fuzs.beaconupgrade.common.client.gui.components;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.world.item.ItemStack;
 
@@ -21,37 +19,18 @@ public class ItemStackDisplayWidget extends AbstractWidget {
     }
 
     @Override
-    protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        if (this.hasHighlight()) {
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
-                    AbstractContainerScreen.SLOT_HIGHLIGHT_BACK_SPRITE,
-                    this.getX() - 4,
-                    this.getY() - 4,
-                    24,
-                    24);
-        }
-
-        guiGraphics.fakeItem(this.itemStack, this.getX(), this.getY());
+    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        guiGraphics.renderFakeItem(this.itemStack, this.getX(), this.getY());
         int posX = this.getX() + 19 - 2 - this.font.width(this.getMessage());
         int posY = this.getY() + 6 + 3;
-        guiGraphics.text(this.font, this.getMessage(), posX, posY, -1);
+        guiGraphics.drawString(this.font, this.getMessage(), posX, posY, -1);
         if (this.hasHighlight()) {
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
-                    AbstractContainerScreen.SLOT_HIGHLIGHT_FRONT_SPRITE,
-                    this.getX() - 4,
-                    this.getY() - 4,
-                    24,
-                    24);
+            AbstractContainerScreen.renderSlotHighlight(guiGraphics, this.getX(), this.getY(), 0);
         }
     }
 
     private boolean hasHighlight() {
         return this.isHoveredOrFocused() && this.tooltip.get() != null;
-    }
-
-    @Override
-    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
-        return false;
     }
 
     @Override

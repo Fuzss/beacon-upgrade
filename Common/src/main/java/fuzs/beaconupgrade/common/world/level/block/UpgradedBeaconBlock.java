@@ -1,42 +1,53 @@
 package fuzs.beaconupgrade.common.world.level.block;
 
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.common.world.level.block.entity.UpgradedBeaconBlockEntity;
-import fuzs.puzzleslib.common.api.block.v1.entity.TickingEntityBlock;
+import fuzs.puzzleslib.api.block.v1.entity.TickingEntityBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BeaconBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BlockTypes;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class UpgradedBeaconBlock extends BeaconBlock implements SimpleWaterloggedBlock, TickingEntityBlock<UpgradedBeaconBlockEntity> {
-    public static final MapCodec<BeaconBlock> CODEC = simpleCodec(UpgradedBeaconBlock::new);
+    public static final MapCodec<UpgradedBeaconBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                    BlockTypes.CODEC.fieldOf("block").forGetter(block -> block.block))
+            .apply(instance, UpgradedBeaconBlock::new));
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public UpgradedBeaconBlock(Properties properties) {
-        super(properties);
+    private final Block block;
+
+    public UpgradedBeaconBlock(Block block) {
+        super(BlockBehaviour.Properties.ofFullCopy(block).dropsLike(block));
+        this.block = block;
         this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, Boolean.FALSE));
     }
 
     @Override
     public MapCodec<BeaconBlock> codec() {
-        return CODEC;
+        return (MapCodec<BeaconBlock>) (MapCodec<?>) CODEC;
+    }
+
+    @Override
+    public String getDescriptionId() {
+        return this.block.getDescriptionId();
     }
 
     @Override
@@ -45,12 +56,12 @@ public class UpgradedBeaconBlock extends BeaconBlock implements SimpleWaterlogge
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
-            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
-        return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
     @Override

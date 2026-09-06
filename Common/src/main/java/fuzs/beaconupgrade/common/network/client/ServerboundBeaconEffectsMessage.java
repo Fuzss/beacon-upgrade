@@ -2,8 +2,8 @@ package fuzs.beaconupgrade.common.network.client;
 
 import fuzs.beaconupgrade.common.world.inventory.UpgradedBeaconMenu;
 import fuzs.beaconupgrade.common.world.level.block.entity.UpgradedBeaconBlockEntity;
-import fuzs.puzzleslib.common.api.network.v4.message.MessageListener;
-import fuzs.puzzleslib.common.api.network.v4.message.play.ServerboundPlayMessage;
+import fuzs.puzzleslib.api.network.v4.message.MessageListener;
+import fuzs.puzzleslib.api.network.v4.message.play.ServerboundPlayMessage;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;

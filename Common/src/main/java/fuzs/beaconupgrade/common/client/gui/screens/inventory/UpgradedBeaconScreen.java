@@ -12,29 +12,28 @@ import fuzs.beaconupgrade.common.client.util.MobEffectTooltipHelper;
 import fuzs.beaconupgrade.common.network.client.ServerboundBeaconEffectsMessage;
 import fuzs.beaconupgrade.common.world.inventory.UpgradedBeaconMenu;
 import fuzs.beaconupgrade.common.world.level.block.entity.*;
-import fuzs.puzzleslib.common.api.client.gui.v2.components.AbstractMenuSelectionList;
-import fuzs.puzzleslib.common.api.client.gui.v2.tooltip.TooltipBuilder;
-import fuzs.puzzleslib.common.api.network.v4.MessageSender;
-import fuzs.puzzleslib.common.api.util.v1.CommonHelper;
+import fuzs.puzzleslib.api.client.gui.v2.components.AbstractMenuSelectionList;
+import fuzs.puzzleslib.api.client.gui.v2.components.tooltip.TooltipBuilder;
+import fuzs.puzzleslib.api.client.gui.v2.screens.inventory.AbstractWidgetsContainerScreen;
+import fuzs.puzzleslib.api.client.input.v1.KeyEvent;
+import fuzs.puzzleslib.api.item.v2.ItemHelper;
+import fuzs.puzzleslib.api.network.v4.MessageSender;
+import fuzs.puzzleslib.api.util.v1.CommonHelper;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
+import net.minecraft.network.chat.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Inventory;
@@ -49,8 +48,8 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<UpgradedBeaconMenu> implements ContainerListener {
-    public static final Identifier TEXTURE_LOCATION = BeaconUpgrade.id("textures/gui/container/beacon.png");
-    public static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
+    public static final ResourceLocation TEXTURE_LOCATION = BeaconUpgrade.id("textures/gui/container/beacon.png");
+    public static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
     public static final WidgetSprites LARGE_BUTTON_SPRITES = new WidgetSprites(BeaconUpgrade.id(
             "container/beacon/large_button"),
             BeaconUpgrade.id("container/beacon/large_button_disabled"),
@@ -87,7 +86,8 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
             "container/beacon/add_button"),
             BeaconUpgrade.id("container/beacon/add_button_disabled"),
             BeaconUpgrade.id("container/beacon/add_button_highlighted"));
-    public static final List<Identifier> PYRAMID_LEVEL_SPRITES = List.of(BeaconUpgrade.id("container/beacon/level_1"),
+    public static final List<ResourceLocation> PYRAMID_LEVEL_SPRITES = List.of(BeaconUpgrade.id(
+                    "container/beacon/level_1"),
             BeaconUpgrade.id("container/beacon/level_2"),
             BeaconUpgrade.id("container/beacon/level_3"),
             BeaconUpgrade.id("container/beacon/level_4"),
@@ -103,7 +103,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                     ANIMAL_BUTTON_SPRITES));
     public static final String PYRAMID_LEVEL_BONUS_KEY = Util.makeDescriptionId("gui",
             BeaconUpgrade.id("beacon.tooltip.pyramid_level_bonus"));
-    public static final List<Identifier> EMPTY_SLOT_ICONS = List.of(SmithingTemplateItem.EMPTY_SLOT_INGOT,
+    public static final List<ResourceLocation> EMPTY_SLOT_ICONS = List.of(SmithingTemplateItem.EMPTY_SLOT_INGOT,
             SmithingTemplateItem.EMPTY_SLOT_DIAMOND,
             SmithingTemplateItem.EMPTY_SLOT_EMERALD);
     public static final int SQUARE_BUTTON_SIZE = 18;
@@ -127,7 +127,9 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     private int updateFlags;
 
     public UpgradedBeaconScreen(UpgradedBeaconMenu menu, Inventory inventory, Component component) {
-        super(menu, inventory, component, 220, 185);
+        super(menu, inventory, component);
+        this.imageWidth = 220;
+        this.imageHeight = 185;
         this.inventoryLabelX = 30;
         this.inventoryLabelY = this.imageHeight - 94;
         this.getMenu().addSlotListener(this);
@@ -137,7 +139,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
         UpgradedBeaconScreen.isPowerTooLow = isPowerTooLow;
     }
 
-    private static Identifier getPyramidLevelSprite(int pyramidLevel) {
+    private static ResourceLocation getPyramidLevelSprite(int pyramidLevel) {
         return PYRAMID_LEVEL_SPRITES.get(Math.clamp(pyramidLevel - 1, 0, PYRAMID_LEVEL_SPRITES.size() - 1));
     }
 
@@ -204,7 +206,6 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
         this.searchBox.setMaxLength(50);
         this.searchBox.setBordered(false);
         this.searchBox.setTextColor(-1);
-        this.searchBox.setInvertHighlightedTextColor(false);
         this.addRenderableWidget(this.searchBox);
         this.scrollingList = new MobEffectSelectionList(this.leftPos + 30, this.topPos + 18);
         this.addRenderableWidget(this.scrollingList);
@@ -226,7 +227,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
             @Override
             public void setMessage(Component message) {
                 super.setMessage(message);
-                this.powerIsTooLowMessage = ComponentUtils.mergeStyles(message,
+                this.powerIsTooLowMessage = ComponentUtils.mergeStyles(message.copy(),
                         Style.EMPTY.withColor(ChatFormatting.RED));
             }
         });
@@ -240,23 +241,23 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
 
             @Override
             public void setMessage(Component message) {
-                this.message = this.inactiveMessage = message;
+                super.setMessage(message);
                 this.backdropMessage = message.copy().withStyle(ChatFormatting.BLACK);
             }
 
             @Override
-            public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-                super.extractContents(guiGraphics, mouseX, mouseY, partialTick);
+            public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+                super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
                 this.renderLabel(guiGraphics);
             }
 
-            private void renderLabel(GuiGraphicsExtractor guiGraphics) {
+            private void renderLabel(GuiGraphics guiGraphics) {
                 int posX = this.getX() + this.getWidth() - UpgradedBeaconScreen.this.font.width(this.getMessage());
                 int posY = this.getY() + this.getHeight() - UpgradedBeaconScreen.this.font.lineHeight + 1;
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
                         if (i != 0 || j != 0) {
-                            guiGraphics.text(UpgradedBeaconScreen.this.font,
+                            guiGraphics.drawString(UpgradedBeaconScreen.this.font,
                                     this.backdropMessage,
                                     posX + i,
                                     posY + j,
@@ -266,7 +267,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                     }
                 }
 
-                guiGraphics.text(UpgradedBeaconScreen.this.font, this.getMessage(), posX, posY, -1, false);
+                guiGraphics.drawString(UpgradedBeaconScreen.this.font, this.getMessage(), posX, posY, -1, false);
             }
         });
         this.cancelButton = this.addRenderableWidget(new ImageButton(this.leftPos + BUTTON_OFFSET_X,
@@ -289,10 +290,10 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                     }
                 }) {
             @Override
-            public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+            public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
                 BeaconEffectTargets effectTargets = UpgradedBeaconScreen.this.getMenu().getEffectTargets();
                 this.sprites = EFFECT_TARGET_SPRITES.getOrDefault(effectTargets, PLAYER_BUTTON_SPRITES);
-                super.extractContents(guiGraphics, mouseX, mouseY, partialTick);
+                super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
             }
         });
         TooltipBuilder.create()
@@ -351,8 +352,8 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     }
 
     private void getTooltipLines(ItemStack itemStack, Consumer<Component> tooltipAdder) {
-        tooltipAdder.accept(Items.BEACON.getDefaultInstance().getStyledHoverName());
-        BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack.typeHolder());
+        tooltipAdder.accept(getStyledHoverName(Items.BEACON.getDefaultInstance()));
+        BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack.getItemHolder());
         int duration = beaconPaymentItem != null ? beaconPaymentItem.getDuration(this.getMenu().getPyramidLevels()) : 0;
         List<MobEffectInstance> mobEffects = this.mobEffects.object2IntEntrySet()
                 .stream()
@@ -360,13 +361,25 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                     return new MobEffectInstance(entry.getKey(), duration, entry.getIntValue());
                 })
                 .sorted(Comparator.comparing((MobEffectInstance mobEffect) -> {
-                    return mobEffect.getEffect().unwrapKey().orElseThrow().identifier();
+                    return mobEffect.getEffect().unwrapKey().orElseThrow().location();
                 }))
                 .toList();
         PotionContents.addPotionTooltip(mobEffects,
                 tooltipAdder,
                 1.0F,
                 this.minecraft.level.tickRateManager().tickrate());
+    }
+
+    @Deprecated
+    public static Component getStyledHoverName(ItemStack itemStack) {
+        MutableComponent hoverName = Component.empty()
+                .append(itemStack.getHoverName())
+                .withStyle(ItemHelper.getRarityStyle(itemStack.getRarity()));
+        if (itemStack.has(DataComponents.CUSTOM_NAME)) {
+            return hoverName.withStyle(ChatFormatting.ITALIC);
+        } else {
+            return hoverName;
+        }
     }
 
     private void refreshPyramidLevels() {
@@ -396,7 +409,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
         Pair<Block, BeaconBaseBlock> pyramidLevelPower = this.getMenu().getPyramidStrength(pyramidLevel);
         if (pyramidLevelPower != null) {
             Block block = pyramidLevelPower.getFirst();
-            Identifier identifier = getPyramidLevelSprite(pyramidLevel);
+            ResourceLocation identifier = getPyramidLevelSprite(pyramidLevel);
             Component guiAtlasComponent = MobEffectTooltipHelper.getGuiAtlasComponent(identifier);
             Component component = Component.translatable(PYRAMID_LEVEL_BONUS_KEY, guiAtlasComponent, block.getName());
             tooltipAdder.accept(component);
@@ -417,7 +430,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     protected List<Component> getTooltipFromContainerItem(ItemStack itemStack) {
         List<Component> tooltipLines = new ArrayList<>();
         TooltipFlag tooltipFlag = this.getTooltipFlag();
-        BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack.typeHolder());
+        BeaconPaymentItem beaconPaymentItem = BeaconPaymentItem.get(itemStack.getItemHolder());
         if (beaconPaymentItem != null) {
             beaconPaymentItem.addToTooltip(this.getMenu().getPyramidLevels(), tooltipLines::add, tooltipFlag);
         }
@@ -442,20 +455,20 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     }
 
     @Override
-    public void resize(int width, int height) {
+    public void resize(Minecraft minecraft, int width, int height) {
         String string = this.searchBox.getValue();
-        super.resize(width, height);
+        super.resize(minecraft, width, height);
         this.searchBox.setValue(string);
         this.refreshSearchResults();
     }
 
     @Override
-    public boolean charTyped(CharacterEvent characterEvent) {
+    public boolean charTyped(char codePoint, int modifiers) {
         if (this.ignoreTextInput) {
             return false;
         } else {
             String s = this.searchBox.getValue();
-            if (this.searchBox.charTyped(characterEvent)) {
+            if (this.searchBox.charTyped(codePoint, modifiers)) {
                 if (!Objects.equals(s, this.searchBox.getValue())) {
                     this.refreshSearchResults();
                 }
@@ -467,41 +480,42 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     }
 
     @Override
-    public boolean keyPressed(KeyEvent keyEvent) {
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         this.ignoreTextInput = false;
         if (!this.searchBox.isFocused()) {
-            if (this.minecraft.options.keyChat.matches(keyEvent)) {
+            if (this.minecraft.options.keyChat.matches(keyCode, scanCode)) {
                 this.ignoreTextInput = true;
                 this.searchBox.setFocused(true);
                 return true;
             } else {
-                return super.keyPressed(keyEvent);
+                return super.keyPressed(keyCode, scanCode, modifiers);
             }
         } else {
             boolean isHoveringFilledSlot = this.hoveredSlot != null && this.hoveredSlot.hasItem();
-            boolean isNumericKey = InputConstants.getKey(keyEvent).getNumericKeyValue().isPresent();
-            if (isHoveringFilledSlot && isNumericKey && this.checkHotbarKeyPressed(keyEvent)) {
+            boolean isNumericKey = InputConstants.getKey(keyCode, scanCode).getNumericKeyValue().isPresent();
+            if (isHoveringFilledSlot && isNumericKey && this.checkHotbarKeyPressed(keyCode, scanCode)) {
                 this.ignoreTextInput = true;
                 return true;
             } else {
                 String searchQuery = this.searchBox.getValue();
-                if (this.searchBox.keyPressed(keyEvent)) {
+                if (this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
                     if (!Objects.equals(searchQuery, this.searchBox.getValue())) {
                         this.refreshSearchResults();
                     }
                     return true;
                 } else {
-                    return this.searchBox.isFocused() && this.searchBox.isVisible() && !keyEvent.isEscape()
-                            || super.keyPressed(keyEvent);
+                    return this.searchBox.isFocused() && this.searchBox.isVisible() && !new KeyEvent(keyCode,
+                            scanCode,
+                            modifiers).isEscape() || super.keyPressed(keyCode, scanCode, modifiers);
                 }
             }
         }
     }
 
     @Override
-    public boolean keyReleased(KeyEvent keyEvent) {
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         this.ignoreTextInput = false;
-        return super.keyReleased(keyEvent);
+        return super.keyReleased(keyCode, scanCode, modifiers);
     }
 
     public void refreshSearchResults() {
@@ -532,16 +546,15 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         isPowerTooLow = false;
-        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.extractBackground(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.blit(RenderPipelines.GUI_TEXTURED,
-                TEXTURE_LOCATION,
+    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        guiGraphics.blit(TEXTURE_LOCATION,
                 this.leftPos,
                 this.topPos,
                 0.0F,
@@ -551,13 +564,12 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                 256,
                 256);
         Slot slot = this.getMenu().getSlot(UpgradedBeaconMenu.PAYMENT_SLOT);
-        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
-                SLOT_SPRITE,
+        guiGraphics.blitSprite(SLOT_SPRITE,
                 this.leftPos + slot.x - 1,
                 this.topPos + slot.y - 1,
                 SQUARE_BUTTON_SIZE,
                 SQUARE_BUTTON_SIZE);
-        this.slotBackground.extractRenderState(this.getMenu(), guiGraphics, partialTick, this.leftPos, this.topPos);
+        this.slotBackground.render(this.getMenu(), guiGraphics, partialTick, this.leftPos, this.topPos);
     }
 
     @Override
@@ -596,7 +608,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
         }
 
         class Entry extends AbstractMenuSelectionList.Entry<Entry> {
-            private final Identifier backgroundSprite;
+            private final ResourceLocation backgroundSprite;
             private final boolean isPowerTooLow;
 
             public Entry(Holder<MobEffect> holder, LevelBasedEntry<MobEffect> levelBasedEntry) {
@@ -605,7 +617,7 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
                 this.isPowerTooLow = levelBasedEntry.isNotAvailable();
                 Component component = ComponentUtils.mergeStyles(levelBasedEntry.getDisplayName(holder,
                         MobEffectSelectionList.this.getWidth() - SQUARE_BUTTON_SIZE * 2,
-                        -1), this.getStyle(levelBasedEntry));
+                        -1).copy(), this.getStyle(levelBasedEntry));
                 StringWidget stringWidget = this.addRenderableWidget(new ScrollingStringWidget(
                         MobEffectSelectionList.this.getX() + SQUARE_BUTTON_SIZE,
                         MobEffectSelectionList.this.getY(),
@@ -658,14 +670,9 @@ public class UpgradedBeaconScreen extends AbstractWidgetsContainerScreen<Upgrade
             }
 
             @Override
-            public void extractContent(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
-                        this.backgroundSprite,
-                        this.getContentX(),
-                        this.getContentY(),
-                        this.getContentWidth(),
-                        this.getContentHeight());
-                super.extractContent(guiGraphics, mouseX, mouseY, hovering, partialTick);
+            public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
+                guiGraphics.blitSprite(this.backgroundSprite, left, top, width, height);
+                super.render(guiGraphics, index, top, left, width, height, mouseX, mouseY, hovering, partialTick);
                 if (hovering && this.isPowerTooLow) {
                     UpgradedBeaconScreen.setIsPowerTooLow(true);
                 }

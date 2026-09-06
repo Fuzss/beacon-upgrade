@@ -1,12 +1,12 @@
 package fuzs.beaconupgrade.common.data.tags;
 
-import fuzs.puzzleslib.common.api.data.v2.core.DataProviderContext;
-import fuzs.puzzleslib.common.api.data.v2.tags.AbstractTagProvider;
+import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
+import fuzs.puzzleslib.api.data.v2.tags.AbstractTagProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.references.ItemIds;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 public class ModItemTagsProvider extends AbstractTagProvider<Item> {
 
@@ -16,6 +16,6 @@ public class ModItemTagsProvider extends AbstractTagProvider<Item> {
 
     @Override
     public void addTags(HolderLookup.Provider provider) {
-        this.tag(ItemTags.BEACON_PAYMENT_ITEMS).add(ItemIds.COPPER_INGOT);
+        this.tag(ItemTags.BEACON_PAYMENT_ITEMS).add(Items.COPPER_INGOT);
     }
 }
