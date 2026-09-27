@@ -1,6 +1,5 @@
 package fuzs.beaconupgrade.common.world.level.block;
 
-import com.mojang.serialization.MapCodec;
 import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.common.world.level.block.entity.UpgradedBeaconBlockEntity;
 import fuzs.puzzleslib.common.api.block.v1.entity.TickingEntityBlock;
@@ -26,17 +25,11 @@ import net.minecraft.world.level.material.Fluids;
 import org.jspecify.annotations.Nullable;
 
 public class UpgradedBeaconBlock extends BeaconBlock implements SimpleWaterloggedBlock, TickingEntityBlock<UpgradedBeaconBlockEntity> {
-    public static final MapCodec<BeaconBlock> CODEC = simpleCodec(UpgradedBeaconBlock::new);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public UpgradedBeaconBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, Boolean.FALSE));
-    }
-
-    @Override
-    public MapCodec<BeaconBlock> codec() {
-        return CODEC;
     }
 
     @Override

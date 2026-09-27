@@ -8,7 +8,7 @@ import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.neoforge.data.ModDataMapProvider;
 import fuzs.beaconupgrade.neoforge.init.NeoForgeModRegistry;
 import fuzs.puzzleslib.common.api.core.v1.ModConstructor;
-import fuzs.puzzleslib.neoforge.api.data.v2.core.DataProviderHelper;
+import fuzs.puzzleslib.neoforge.api.data.v3.core.DataProviderBuilder;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerSpawnPhantomsEvent;
@@ -20,11 +20,11 @@ public class BeaconUpgradeNeoForge {
         ModConstructor.construct(BeaconUpgrade.MOD_ID, BeaconUpgrade::new);
         NeoForgeModRegistry.bootstrap();
         registerEventHandlers();
-        DataProviderHelper.registerDataProviders(BeaconUpgrade.MOD_ID,
-                ModBlockTagsProvider::new,
-                ModItemTagsProvider::new,
-                ModEntityTypeTagsProvider::new,
-                ModDataMapProvider::new);
+        DataProviderBuilder.of(BeaconUpgrade.MOD_ID)
+                .addProvider(ModBlockTagsProvider::new,
+                        ModItemTagsProvider::new,
+                        ModEntityTypeTagsProvider::new,
+                        ModDataMapProvider::new);
     }
 
     private static void registerEventHandlers() {
