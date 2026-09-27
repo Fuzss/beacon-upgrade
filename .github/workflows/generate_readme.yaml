@@ -6,8 +6,6 @@ on:
       - 'main'
     paths:
       - 'versions.json'
-  create:
-  delete:
   workflow_dispatch:
 
 permissions:
