@@ -4,7 +4,8 @@
 
 | Branch | Status | Links | Downloads |
 | --- | --- | --- | --- |
-| [26.2.x](https://github.com/Fuzss/beacon-upgrade/tree/26.2.x) | ✅&nbsp;Primary | 📜&nbsp;[History](https://github.com/Fuzss/beacon-upgrade/commits/26.2.x)<br />📖&nbsp;[README.md](https://github.com/Fuzss/beacon-upgrade/blob/26.2.x/README.md)<br />📝&nbsp;[CHANGELOG.md](https://github.com/Fuzss/beacon-upgrade/blob/26.2.x/CHANGELOG.md) | n/a |
+| [26.3.x](https://github.com/Fuzss/beacon-upgrade/tree/26.3.x) | ✅&nbsp;Primary | 📜&nbsp;[History](https://github.com/Fuzss/beacon-upgrade/commits/26.3.x)<br />📖&nbsp;[README.md](https://github.com/Fuzss/beacon-upgrade/blob/26.3.x/README.md)<br />📝&nbsp;[CHANGELOG.md](https://github.com/Fuzss/beacon-upgrade/blob/26.3.x/CHANGELOG.md) | n/a |
+| [26.2.x](https://github.com/Fuzss/beacon-upgrade/tree/26.2.x) | ❌&nbsp;Archived | 📜&nbsp;[History](https://github.com/Fuzss/beacon-upgrade/commits/26.2.x)<br />📖&nbsp;[README.md](https://github.com/Fuzss/beacon-upgrade/blob/26.2.x/README.md)<br />📝&nbsp;[CHANGELOG.md](https://github.com/Fuzss/beacon-upgrade/blob/26.2.x/CHANGELOG.md) | n/a |
 | [26.1.x](https://github.com/Fuzss/beacon-upgrade/tree/26.1.x) | ✅&nbsp;Maintained | 📜&nbsp;[History](https://github.com/Fuzss/beacon-upgrade/commits/26.1.x)<br />📖&nbsp;[README.md](https://github.com/Fuzss/beacon-upgrade/blob/26.1.x/README.md)<br />📝&nbsp;[CHANGELOG.md](https://github.com/Fuzss/beacon-upgrade/blob/26.1.x/CHANGELOG.md) | n/a |
 
 ### Minecraft 1.21.x
