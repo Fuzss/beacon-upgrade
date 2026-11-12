@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import fuzs.beaconupgrade.common.init.ModRegistry;
 import fuzs.beaconupgrade.common.world.inventory.UpgradedBeaconMenu;
+import fuzs.puzzleslib.common.api.block.v1.entity.BlockEntityHelper;
 import fuzs.puzzleslib.common.api.block.v1.entity.TickingBlockEntity;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -26,8 +27,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -192,15 +193,10 @@ public class UpgradedBeaconBlockEntity extends BeaconBlockEntity implements Tick
     private List<Holder<Block>> pyramidLevels = Collections.emptyList();
 
     public UpgradedBeaconBlockEntity(BlockPos blockPos, BlockState blockState) {
-        super(blockPos, blockState);
-        this.type = ModRegistry.BEACON_BLOCK_ENTITY_TYPE.value();
+        super(blockPos, Blocks.BEACON.defaultBlockState());
+        BlockEntityHelper.init(this, ModRegistry.BEACON_BLOCK_ENTITY_TYPE.value(), blockState);
         this.mobEffects = new Object2IntOpenHashMap<>();
         this.mobEffects.defaultReturnValue(DEFAULT_AMPLIFIER);
-    }
-
-    @Override
-    public BlockEntityType<?> getType() {
-        return ModRegistry.BEACON_BLOCK_ENTITY_TYPE.value();
     }
 
     public int getPyramidLevels() {
